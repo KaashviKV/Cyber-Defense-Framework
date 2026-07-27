@@ -1,0 +1,23 @@
+# Dataset
+dataset/
+
+# Environment Variables
+backend/.env
+
+# Logs
+logs/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Node modules
+node_modules/
+
+# VS Code
+.vscode/
+
+# Virtual Environment
+venv/
+env/
+ml/venv/
