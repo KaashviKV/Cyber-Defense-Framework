@@ -2,183 +2,184 @@
 ====================================================
 Intelligent Cyber Defense Framework
 Main Integration Pipeline
-
-Pipeline Flow
-
-1. Random Forest Prediction
-2. VirusTotal Threat Intelligence
-3. AbuseIPDB Reputation Check
-4. Risk Engine
-5. Reinforcement Learning Decision Engine
-6. Final Security Report
 ====================================================
 """
 
 import os
 import sys
-import numpy as np
-from backend.models.analysis_model import save_analysis
+import time
+from typing import Any, Optional
 
-# ----------------------------------------------------
-# Add Project Root
-# ----------------------------------------------------
+import numpy as np
+
+from backend.config.config import API_VERSION
+from backend.models.analysis_model import build_api_status, save_analysis
+from backend.utils.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, ".."))
-
 sys.path.append(PROJECT_ROOT)
-
-# ----------------------------------------------------
-# Imports
-# ----------------------------------------------------
 
 from ml.predict import predict_attack
 from cti.virustotal import check_virustotal
 from cti.abuseipdb import check_abuseip
-from ml.risk_engine import RiskEngine
+from ml.risk_engine import RiskEngine, normalize_virustotal_score
 from ml.response_engine.decision_engine import DecisionEngine
+
+
+def _elapsed_ms(start: float) -> int:
+    return int((time.perf_counter() - start) * 1000)
 
 
 class CyberDefensePipeline:
 
-    def __init__(self):
-
+    def __init__(self) -> None:
         self.risk_engine = RiskEngine()
         self.decision_engine = DecisionEngine()
 
-    # ------------------------------------------------
+    def analyze(
+        self,
+        features: np.ndarray,
+        ip_address: str,
+        request_id: Optional[str] = None,
+    ) -> dict[str, Any]:
+        total_start = time.perf_counter()
+        performance: dict[str, int] = {}
 
-    def analyze(self, features, ip_address):
+        log_extra = {"ip": ip_address, "request_id": request_id}
+        logger.info("Analysis started", extra=log_extra)
 
-        print("\n===================================")
-        print("STEP 1 : RANDOM FOREST PREDICTION")
-        print("===================================")
-
+        step_start = time.perf_counter()
         prediction = predict_attack(features)
-
-        print(prediction)
+        performance["prediction_ms"] = _elapsed_ms(step_start)
+        logger.info(
+            "Prediction complete",
+            extra={
+                **log_extra,
+                "attack": prediction.get("attack"),
+                "confidence": prediction.get("confidence"),
+                "duration_ms": performance["prediction_ms"],
+            },
+        )
 
         attack = prediction["attack"]
         severity = prediction["severity"]
         confidence = prediction["confidence"]
 
-        # ------------------------------------------------
-
-        print("\n===================================")
-        print("STEP 2 : VIRUSTOTAL")
-        print("===================================")
-
+        step_start = time.perf_counter()
         vt = check_virustotal(ip_address)
+        performance["virustotal_ms"] = _elapsed_ms(step_start)
+        if "error" in vt:
+            logger.warning(
+                "VirusTotal unavailable",
+                extra={**log_extra, "error": vt.get("error"), "duration_ms": performance["virustotal_ms"]},
+            )
+        else:
+            logger.info("VirusTotal lookup complete", extra={**log_extra, "duration_ms": performance["virustotal_ms"]})
 
-        print(vt)
+        vt_score = normalize_virustotal_score(vt)
 
-        vt_score = vt.get("malicious", 0)
-
-        # ------------------------------------------------
-
-        print("\n===================================")
-        print("STEP 3 : ABUSEIPDB")
-        print("===================================")
-
+        step_start = time.perf_counter()
         abuse = check_abuseip(ip_address)
+        performance["abuseipdb_ms"] = _elapsed_ms(step_start)
+        if "error" in abuse:
+            logger.warning(
+                "AbuseIPDB unavailable",
+                extra={**log_extra, "error": abuse.get("error"), "duration_ms": performance["abuseipdb_ms"]},
+            )
+        else:
+            logger.info("AbuseIPDB lookup complete", extra={**log_extra, "duration_ms": performance["abuseipdb_ms"]})
 
-        print(abuse)
+        abuse_score = abuse.get("abuse_confidence", 0) if "error" not in abuse else 0
 
-        abuse_score = abuse.get("abuse_confidence", 0)
-
-        # ------------------------------------------------
-
-        print("\n===================================")
-        print("STEP 4 : RISK ENGINE")
-        print("===================================")
-
+        step_start = time.perf_counter()
         risk = self.risk_engine.calculate_risk(
-
             attack_name=attack,
-
             model_confidence=confidence,
-
             virustotal_score=vt_score,
-
-            abuse_score=abuse_score
+            abuse_score=abuse_score,
+        )
+        risk["virustotal_score"] = vt_score
+        risk["abuseipdb_score"] = abuse_score
+        performance["risk_engine_ms"] = _elapsed_ms(step_start)
+        logger.info(
+            "Risk calculated",
+            extra={
+                **log_extra,
+                "risk_level": risk.get("risk_level"),
+                "risk_score": risk.get("risk_score"),
+                "duration_ms": performance["risk_engine_ms"],
+            },
         )
 
-        print(risk)
-
-        # ------------------------------------------------
-
-        print("\n===================================")
-        print("STEP 5 : RL DECISION ENGINE")
-        print("===================================")
-
+        step_start = time.perf_counter()
         decision = self.decision_engine.decide(
-
             ip_address=ip_address,
-
             attack_severity=severity,
-
-            risk_score=risk["risk_score"]
-
+            risk_score=risk["risk_score"],
+        )
+        performance["dqn_ms"] = _elapsed_ms(step_start)
+        logger.info(
+            "Decision complete",
+            extra={
+                **log_extra,
+                "action": decision.get("action"),
+                "duration_ms": performance["dqn_ms"],
+            },
         )
 
-        # ------------------------------------------------
+        performance["total_ms"] = _elapsed_ms(total_start)
 
-        print("\n===================================")
-        print("FINAL REPORT")
-        print("===================================")
-
-        result = {
-
+        result: dict[str, Any] = {
             "ip_address": ip_address,
-
+            "request_id": request_id,
+            "api_version": API_VERSION,
             "prediction": prediction,
-
             "virustotal": vt,
-
             "abuseipdb": abuse,
-
             "risk": risk,
-
-            "decision": decision
-
+            "decision": decision,
+            "performance": performance,
+            "api_status": build_api_status({
+                "virustotal": vt,
+                "abuseipdb": abuse,
+            }),
         }
 
-        analysis_id = save_analysis(report)
+        try:
+            analysis_id = save_analysis(result)
+            result["analysis_id"] = analysis_id
+            result["saved_to_mongodb"] = True
+            result["api_status"]["mongodb"] = "saved"
+            logger.info(
+                "Analysis saved to MongoDB",
+                extra={**log_extra, "analysis_id": analysis_id},
+            )
+        except Exception as exc:
+            result["analysis_id"] = None
+            result["saved_to_mongodb"] = False
+            result["mongodb_error"] = str(exc)
+            result["api_status"]["mongodb"] = "error"
+            logger.error(
+                "MongoDB save failed",
+                extra={**log_extra, "error": str(exc)},
+            )
 
-        print("\nSaved to MongoDB")
-
-        print("Document ID :", analysis_id)
+        logger.info(
+            "Analysis completed",
+            extra={**log_extra, "total_ms": performance["total_ms"]},
+        )
 
         return result
 
 
-# ----------------------------------------------------
-# Testing
-# ----------------------------------------------------
-
 if __name__ == "__main__":
-
     pipeline = CyberDefensePipeline()
-
-    print("\nCreating Dummy Network Traffic...\n")
-
     dummy_features = np.random.rand(78)
-
     ip = input("Enter IP Address : ")
-
-    report = pipeline.analyze(
-
-        features=dummy_features,
-
-        ip_address=ip
-
-    )
-
-    print("\n===================================")
-    print("PIPELINE COMPLETED")
-    print("===================================\n")
-
+    report = pipeline.analyze(features=dummy_features, ip_address=ip, request_id="cli-test")
     from pprint import pprint
 
     pprint(report)
-    

@@ -1,8 +1,16 @@
 import pandas as pd
 import joblib
+import os
 
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
+
+# -----------------------------
+# Paths
+# -----------------------------
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+SAVE_DIR = os.path.join(CURRENT_DIR, "saved_models")
+os.makedirs(SAVE_DIR, exist_ok=True)
 
 # -----------------------------
 # Load Balanced Dataset
@@ -34,7 +42,7 @@ for i, label in enumerate(label_encoder.classes_):
     print(i, ":", label)
 
 # Save encoder
-joblib.dump(label_encoder, "../models/label_encoder.pkl")
+joblib.dump(label_encoder, os.path.join(SAVE_DIR, "label_encoder.pkl"))
 
 # -----------------------------
 # Features and Target
@@ -51,7 +59,7 @@ scaler = StandardScaler()
 
 X_scaled = scaler.fit_transform(X)
 
-joblib.dump(scaler, "../models/scaler.pkl")
+joblib.dump(scaler, os.path.join(SAVE_DIR, "scaler.pkl"))
 
 # -----------------------------
 # Train Test Split
@@ -72,7 +80,9 @@ print("Testing Samples  :", len(X_test))
 # -----------------------------
 # Save Processed Data
 # -----------------------------
-joblib.dump((X_train, X_test, y_train, y_test),
-            "../dataset/CICIDS2017/processed/train_test_data.pkl")
+joblib.dump(
+    (X_train, X_test, y_train, y_test),
+    "../dataset/CICIDS2017/processed/train_test_data.pkl",
+)
 
 print("\nFeature Engineering Completed Successfully!")
