@@ -20,6 +20,7 @@ export default function Analytics() {
 
   const summary = useMemo(() => {
     const attacks = {};
+    const maliciousAttacks = {};
     const countries = {};
     let severitySum = 0;
     let confidenceSum = 0;
@@ -28,6 +29,9 @@ export default function Analytics() {
     history.forEach((row) => {
       const attack = row.prediction?.attack || "Unknown";
       attacks[attack] = (attacks[attack] || 0) + 1;
+      if (attack !== "BENIGN") {
+        maliciousAttacks[attack] = (maliciousAttacks[attack] || 0) + 1;
+      }
       const country = row.abuseipdb?.country;
       if (country) countries[country] = (countries[country] || 0) + 1;
       if (row.prediction?.severity != null) {
@@ -39,7 +43,8 @@ export default function Analytics() {
       }
     });
 
-    const topAttack = Object.entries(attacks).sort((a, b) => b[1] - a[1])[0];
+    const topAttack = Object.entries(maliciousAttacks).sort((a, b) => b[1] - a[1])[0]
+      || Object.entries(attacks).sort((a, b) => b[1] - a[1])[0];
     const topCountry = Object.entries(countries).sort((a, b) => b[1] - a[1])[0];
 
     return {
@@ -121,7 +126,7 @@ export default function Analytics() {
       ) : (
         <div className="grid grid-2">
           <div className="card">
-            <h3 className="card-title">Attacks Over Time</h3>
+            <h3 className="card-title">Analyses Over Time</h3>
             <TrendChart history={history} />
           </div>
           <div className="card">

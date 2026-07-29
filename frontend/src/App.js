@@ -4,7 +4,7 @@ import Overview from "./pages/Overview";
 import Analyze from "./pages/Analyze";
 import History from "./pages/History";
 import Detail from "./pages/Detail";
-import { Alerts, Blocked, Isolated } from "./pages/ActionPages";
+import ResponseActions from "./pages/ResponseActions";
 import Analytics from "./pages/Analytics";
 import Architecture from "./pages/Architecture";
 import About from "./pages/About";
@@ -21,9 +21,10 @@ function App() {
           <Route path="analyze" element={<Analyze />} />
           <Route path="history" element={<History />} />
           <Route path="history/:id" element={<Detail />} />
-          <Route path="blocked" element={<Blocked />} />
-          <Route path="isolated" element={<Isolated />} />
-          <Route path="alerts" element={<Alerts />} />
+          <Route path="actions" element={<ResponseActions />} />
+          <Route path="blocked" element={<Navigate to="/actions" replace />} />
+          <Route path="isolated" element={<Navigate to="/actions" replace />} />
+          <Route path="alerts" element={<Navigate to="/actions" replace />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="architecture" element={<Architecture />} />
           <Route path="project-stats" element={<ProjectStats />} />

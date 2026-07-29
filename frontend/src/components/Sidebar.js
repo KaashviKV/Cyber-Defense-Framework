@@ -7,9 +7,7 @@ import {
   FiCpu,
   FiGrid,
   FiInfo,
-  FiLock,
   FiShield,
-  FiSlash,
   FiZap,
 } from "react-icons/fi";
 
@@ -17,9 +15,7 @@ const links = [
   { to: "/", label: "Overview", icon: FiGrid, end: true },
   { to: "/analyze", label: "Live Analyze", icon: FiZap },
   { to: "/history", label: "Threat History", icon: FiActivity },
-  { to: "/blocked", label: "Blocked IPs", icon: FiSlash },
-  { to: "/isolated", label: "Isolated Hosts", icon: FiLock },
-  { to: "/alerts", label: "Alerts", icon: FiAlertTriangle },
+  { to: "/actions", label: "Response Actions", icon: FiAlertTriangle },
   { to: "/analytics", label: "Analytics", icon: FiBarChart2 },
   { to: "/architecture", label: "Architecture", icon: FiCpu },
   { to: "/project-stats", label: "Project Stats", icon: FiBookOpen },

@@ -1168,6 +1168,47 @@ table.data-table tbody tr:hover {
   font-size: 0.9rem;
 }
 
+.action-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.action-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #0f172a;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.action-tab.active {
+  border-color: rgba(59, 130, 246, 0.55);
+  background: rgba(59, 130, 246, 0.12);
+  color: #fff;
+}
+
+.action-tab-count {
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 0.72rem;
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.action-tab.active .action-tab-count {
+  background: rgba(59, 130, 246, 0.25);
+}
+
 @media (max-width: 1200px) {
   .grid-4 {
     grid-template-columns: repeat(2, minmax(0, 1fr));

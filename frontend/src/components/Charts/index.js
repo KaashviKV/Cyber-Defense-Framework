@@ -10,6 +10,7 @@ import {
   Legend,
   Filler,
 } from "chart.js";
+import { useMemo } from "react";
 import { Doughnut, Bar, Pie, Line, Scatter } from "react-chartjs-2";
 import {
   ACTION_COLORS,
@@ -130,38 +131,92 @@ export function ActionChart({ history }) {
 }
 
 export function TrendChart({ history }) {
-  const buckets = {};
-  history.forEach((row) => {
-    if (!row.timestamp) return;
-    const day = new Date(row.timestamp).toLocaleDateString();
-    buckets[day] = (buckets[day] || 0) + 1;
-  });
-  const labels = Object.keys(buckets);
+  const { labels, values, bucketLabel } = useMemo(() => {
+    const dated = history
+      .map((row) => (row.timestamp ? new Date(row.timestamp) : null))
+      .filter((date) => date && !Number.isNaN(date.getTime()));
+
+    if (!dated.length) {
+      return { labels: [], values: [], bucketLabel: "Analyses" };
+    }
+
+    const timestamps = dated.map((date) => date.getTime());
+    const spanDays = (Math.max(...timestamps) - Math.min(...timestamps)) / (1000 * 60 * 60 * 24);
+    const useHours = spanDays <= 2;
+
+    const buckets = new Map();
+    history.forEach((row) => {
+      if (!row.timestamp) return;
+      const date = new Date(row.timestamp);
+      if (Number.isNaN(date.getTime())) return;
+
+      const sortKey = useHours
+        ? Math.floor(date.getTime() / (1000 * 60 * 60))
+        : Math.floor(date.getTime() / (1000 * 60 * 60 * 24));
+
+      const label = useHours
+        ? date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit" })
+        : date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+      const existing = buckets.get(sortKey);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        buckets.set(sortKey, { label, count: 1 });
+      }
+    });
+
+    const sorted = Array.from(buckets.entries()).sort((a, b) => a[0] - b[0]);
+
+    return {
+      labels: sorted.map(([, value]) => value.label),
+      values: sorted.map(([, value]) => value.count),
+      bucketLabel: useHours ? "Analyses per hour" : "Analyses per day",
+    };
+  }, [history]);
+
+  const useBar = labels.length <= 3;
+  const maxValue = Math.max(...values, 0);
+  const suggestedMax = Math.max(maxValue + 1, 5);
+
   const data = {
     labels,
     datasets: [
       {
-        label: "Threats",
-        data: labels.map((l) => buckets[l]),
+        label: bucketLabel,
+        data: values,
         borderColor: "#3B82F6",
-        backgroundColor: "rgba(59,130,246,0.18)",
-        fill: true,
+        backgroundColor: useBar ? "rgba(59,130,246,0.75)" : "rgba(59,130,246,0.18)",
+        fill: !useBar,
         tension: 0.35,
+        borderRadius: useBar ? 6 : 0,
+        pointRadius: useBar ? 0 : 4,
+        pointHoverRadius: useBar ? 0 : 6,
       },
     ],
   };
+
+  const scaleOptions = {
+    x: { ticks: { color: "#94A3B8", maxRotation: 45, minRotation: 0 }, grid: { color: "#1F2937" } },
+    y: {
+      ticks: { color: "#94A3B8", stepSize: maxValue <= 10 ? 1 : undefined },
+      grid: { color: "#1F2937" },
+      beginAtZero: true,
+      suggestedMax,
+    },
+  };
+
+  if (!labels.length) {
+    return <div className="heatmap-empty">No timestamped analyses to chart yet.</div>;
+  }
+
   return (
     <div style={{ height: 260 }}>
-      <Line
-        data={data}
-        options={{
-          ...baseOptions,
-          scales: {
-            x: { ticks: { color: "#94A3B8" }, grid: { color: "#1F2937" } },
-            y: { ticks: { color: "#94A3B8" }, grid: { color: "#1F2937" }, beginAtZero: true },
-          },
-        }}
-      />
+      {useBar ? (
+        <Bar data={data} options={{ ...baseOptions, scales: scaleOptions }} />
+      ) : (
+        <Line data={data} options={{ ...baseOptions, scales: scaleOptions }} />
+      )}
     </div>
   );
 }
