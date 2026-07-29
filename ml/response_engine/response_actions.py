@@ -9,8 +9,11 @@ import os
 from datetime import datetime
 
 
-# Log folder
-LOG_FOLDER = "../logs"
+# Log folder (project-root/logs)
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_FOLDER = os.path.abspath(
+    os.path.join(CURRENT_DIR, "..", "..", "logs")
+)
 
 os.makedirs(LOG_FOLDER, exist_ok=True)
 

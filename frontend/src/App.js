@@ -1,24 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout";
+import Overview from "./pages/Overview";
+import Analyze from "./pages/Analyze";
+import History from "./pages/History";
+import Detail from "./pages/Detail";
+import { Alerts, Blocked, Isolated } from "./pages/ActionPages";
+import Analytics from "./pages/Analytics";
+import Architecture from "./pages/Architecture";
+import About from "./pages/About";
+import ProjectStats from "./pages/ProjectStats";
+import NotFound from "./pages/NotFound";
+import "./App.css";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route index element={<Overview />} />
+          <Route path="analyze" element={<Analyze />} />
+          <Route path="history" element={<History />} />
+          <Route path="history/:id" element={<Detail />} />
+          <Route path="blocked" element={<Blocked />} />
+          <Route path="isolated" element={<Isolated />} />
+          <Route path="alerts" element={<Alerts />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="architecture" element={<Architecture />} />
+          <Route path="project-stats" element={<ProjectStats />} />
+          <Route path="about" element={<About />} />
+          <Route path="home" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
