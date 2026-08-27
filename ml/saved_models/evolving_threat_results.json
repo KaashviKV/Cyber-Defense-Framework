@@ -1,0 +1,51 @@
+{
+  "generated_at": "2026-08-27T05:10:46.718744+00:00",
+  "dataset": "synthetic_smoke",
+  "static_iid": {
+    "precision_weighted": 0.762,
+    "recall_weighted": 0.7589,
+    "macro_f1": 0.7585,
+    "detection_rate": 0.9462,
+    "false_positive_rate": 0.1731,
+    "false_negative_rate": 0.0538
+  },
+  "evolving_attack_heavy_test": {
+    "precision_weighted": 0.8062,
+    "recall_weighted": 0.4876,
+    "macro_f1": 0.5033,
+    "detection_rate": 0.61,
+    "false_positive_rate": 0.0,
+    "false_negative_rate": 0.39
+  },
+  "unseen_class_holdout": [
+    {
+      "held_out_class": "1",
+      "test_samples": 500,
+      "exact_class_recall": 0.0,
+      "detected_as_any_attack": 0.798,
+      "note": "Exact-class recall is expected to be low for a class never seen in training; detected_as_any_attack shows whether the IDS still flags it as non-benign."
+    },
+    {
+      "held_out_class": "2",
+      "test_samples": 498,
+      "exact_class_recall": 0.0,
+      "detected_as_any_attack": 0.7932,
+      "note": "Exact-class recall is expected to be low for a class never seen in training; detected_as_any_attack shows whether the IDS still flags it as non-benign."
+    },
+    {
+      "held_out_class": "3",
+      "test_samples": 501,
+      "exact_class_recall": 0.0,
+      "detected_as_any_attack": 0.6707,
+      "note": "Exact-class recall is expected to be low for a class never seen in training; detected_as_any_attack shows whether the IDS still flags it as non-benign."
+    },
+    {
+      "held_out_class": "4",
+      "test_samples": 500,
+      "exact_class_recall": 0.0,
+      "detected_as_any_attack": 0.824,
+      "note": "Exact-class recall is expected to be low for a class never seen in training; detected_as_any_attack shows whether the IDS still flags it as non-benign."
+    }
+  ],
+  "interpretation": "Static IID performance is an optimistic bound. Attack-heavy shift and unseen-class holdout show how a frozen IDS degrades \u2014 motivation for CTI + RL adaptation rather than accuracy on a random split alone."
+}

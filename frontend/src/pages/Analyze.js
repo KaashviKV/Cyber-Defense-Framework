@@ -1,19 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import { FiCopy, FiPlay, FiRefreshCw, FiTrash2, FiZap } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { FiPlay, FiRefreshCw, FiTrash2, FiZap } from "react-icons/fi";
 import { analyzeTraffic } from "../api/analyze";
 import { getApiErrorMessage } from "../api/client";
+import { fetchHealth } from "../api/research";
 import AnalysisResults from "../components/AnalysisResults";
 import PipelineVisualization from "../components/PipelineVisualization";
-import RiskBadge from "../components/RiskBadge";
-import ActionBadge from "../components/ActionBadge";
 import { useToast } from "../components/Toast";
 import { DEMO_ATTACK_IPS, PIPELINE_STAGES } from "../utils/constants";
-import {
-  copyToClipboard,
-  formatNumber,
-  generateDemoFeatures,
-  parseFeatureInput,
-} from "../utils/formatters";
+import { generateDemoFeatures, parseFeatureInput } from "../utils/formatters";
+import { pickDemoAttackVector } from "../utils/demoVectors";
 
 export default function Analyze() {
   const { push } = useToast();
@@ -24,6 +19,22 @@ export default function Analyze() {
   const [stageIndex, setStageIndex] = useState(-1);
   const [result, setResult] = useState(null);
   const [requestError, setRequestError] = useState("");
+  const [demoMeta, setDemoMeta] = useState(null);
+  const [health, setHealth] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    fetchHealth()
+      .then((data) => {
+        if (active) setHealth(data);
+      })
+      .catch(() => {
+        if (active) setHealth(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!loading) return undefined;
@@ -35,23 +46,36 @@ export default function Analyze() {
   }, [loading]);
 
   const analysis = result?.analysis;
+  const services = health?.services || {};
+  const ctiMissing =
+    services.virustotal_api === "missing" || services.abuseipdb_api === "missing";
+  const mongoStatus = String(services.mongodb || "");
+  const mongoDown =
+    mongoStatus &&
+    !["connected", "ok", "up", "healthy"].includes(mongoStatus.toLowerCase());
 
   const handleGenerate = () => {
     const values = generateDemoFeatures();
     setFeaturesText(JSON.stringify(values));
     setValidationError("");
-    push("Generated 78 demo feature values.", "success");
+    setDemoMeta({ kind: "features" });
+    push("Loaded a real CICIDS2017 demo feature vector (78 values).", "success");
   };
 
   const handleDemoAttack = async () => {
     const pick = DEMO_ATTACK_IPS[Math.floor(Math.random() * DEMO_ATTACK_IPS.length)];
-    const values = generateDemoFeatures();
+    const sample = pickDemoAttackVector();
+    const values = sample?.features ? [...sample.features] : generateDemoFeatures();
     setIp(pick.ip);
     setFeaturesText(JSON.stringify(values));
     setValidationError("");
     setRequestError("");
     setResult(null);
-    push(`Demo attack prepared: ${pick.label} (${pick.ip})`, "info");
+    setDemoMeta({ kind: "attack", attackLabel: sample?.label, ipLabel: pick.label });
+    push(
+      `Demo attack prepared: ${sample?.label || "attack"} features + ${pick.label} (${pick.ip})`,
+      "info"
+    );
 
     setLoading(true);
     try {
@@ -76,12 +100,14 @@ export default function Analyze() {
     setValidationError("");
     setResult(null);
     setRequestError("");
+    setDemoMeta(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setRequestError("");
     setResult(null);
+    setDemoMeta(null);
 
     if (!ip.trim()) {
       setValidationError("IP address is required.");
@@ -113,22 +139,12 @@ export default function Analyze() {
     }
   };
 
-  const stageStates = useMemo(() => {
-    return PIPELINE_STAGES.map((stage, idx) => {
-      if (!loading && analysis) return { label: stage.label, state: "done" };
-      if (!loading) return { label: stage.label, state: "" };
-      if (idx < stageIndex) return { label: stage.label, state: "done" };
-      if (idx === stageIndex) return { label: stage.label, state: "active" };
-      return { label: stage.label, state: "" };
-    });
-  }, [loading, stageIndex, analysis]);
-
   return (
-    <div>
+    <div className="analyze-page">
       <div className="page-header">
         <div>
           <h2>Live Analyze</h2>
-          <p>Submit network features and IP for end-to-end AI security analysis.</p>
+          <p>Run CICIDS → RF → CTI → risk → DQN. Responses are simulated (no live firewall).</p>
         </div>
         <div className="page-actions">
           <button
@@ -142,11 +158,21 @@ export default function Analyze() {
         </div>
       </div>
 
-      <div className="grid grid-2">
-        <form className="card" onSubmit={handleSubmit}>
-          <h3 className="card-title">Analysis Request</h3>
+      {ctiMissing && (
+        <div className="alert alert-warning" style={{ marginBottom: "0.85rem" }}>
+          CTI API keys are not fully configured. Analysis still runs using ML + risk; set keys in{" "}
+          <code>backend/.env</code> for live VirusTotal / AbuseIPDB enrichment.
+        </div>
+      )}
+      {mongoDown && (
+        <div className="alert alert-warning" style={{ marginBottom: "0.85rem" }}>
+          MongoDB status: <code>{mongoStatus}</code>. History may not persist.
+        </div>
+      )}
 
-          <div className="field" style={{ marginBottom: "0.9rem" }}>
+      <form className="card analyze-workspace" onSubmit={handleSubmit}>
+        <div className="analyze-workspace-top">
+          <div className="field analyze-ip-field">
             <label htmlFor="ip">IP Address</label>
             <input
               id="ip"
@@ -158,113 +184,63 @@ export default function Analyze() {
             />
           </div>
 
-          <div className="field">
-            <label htmlFor="features">Features (exactly 78 values)</label>
-            <textarea
-              id="features"
-              className="textarea"
-              value={featuresText}
-              onChange={(e) => setFeaturesText(e.target.value)}
-              placeholder='Paste JSON array [0.1, 0.2, ...] or comma-separated values'
-            />
-          </div>
-
-          {validationError && (
-            <div className="alert alert-error" style={{ marginTop: "0.9rem" }}>
-              {validationError}
-            </div>
-          )}
-
-          <div className="page-actions" style={{ marginTop: "1rem" }}>
-            <button type="button" className="btn btn-secondary" onClick={handleGenerate}>
-              <FiRefreshCw /> Generate Demo Features
+          <div className="analyze-workspace-actions">
+            <button type="button" className="btn btn-secondary" onClick={handleGenerate} disabled={loading}>
+              <FiRefreshCw /> Load Demo Features
             </button>
-            <button type="button" className="btn btn-outline" onClick={handleClear}>
+            <button type="button" className="btn btn-outline" onClick={handleClear} disabled={loading}>
               <FiTrash2 /> Clear
             </button>
             <button type="submit" className="btn btn-primary" disabled={loading}>
-              <FiPlay /> {loading ? "Running…" : "Run Security Analysis"}
+              <FiPlay /> {loading ? "Running…" : "Run Analysis"}
             </button>
           </div>
+        </div>
 
-          {(loading || analysis) && (
-            <div className="pipeline" aria-live="polite" style={{ marginTop: "1rem" }}>
-              {stageStates.map((step) => (
-                <div key={step.label} className={`pipeline-step ${step.state}`}>
-                  <span>{step.label}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </form>
+        <div className="field">
+          <label htmlFor="features">Features (exactly 78 CICIDS values)</label>
+          <textarea
+            id="features"
+            className="textarea analyze-features-textarea"
+            value={featuresText}
+            onChange={(e) => setFeaturesText(e.target.value)}
+            placeholder="Paste JSON array, or use Demo Attack / Load Demo Features"
+          />
+        </div>
 
-        <div className="card">
-          <h3 className="card-title">Pipeline Visualization</h3>
-          {loading && (
-            <div className="loading-wrap">
-              <div className="spinner" />
-              <div>Executing AI defense pipeline…</div>
-            </div>
-          )}
-          {!loading && !analysis && !requestError && (
-            <div className="empty-state" style={{ padding: "1.5rem 0.5rem" }}>
-              <h3>Ready</h3>
-              <p>Use Demo Attack or paste a 78-value vector, then run analysis.</p>
-            </div>
-          )}
-          {requestError && <div className="alert alert-error">{requestError}</div>}
+        {validationError && (
+          <div className="alert alert-error" style={{ marginTop: "0.75rem" }}>
+            {validationError}
+          </div>
+        )}
+        {requestError && (
+          <div className="alert alert-error" style={{ marginTop: "0.75rem" }}>
+            {requestError}
+          </div>
+        )}
+
+        <div className="analyze-pipeline-block">
+          <div className="analyze-pipeline-label">
+            <span>Defense pipeline</span>
+            {loading ? <em>Running…</em> : analysis ? <em>Complete</em> : <em>Idle</em>}
+          </div>
           <PipelineVisualization
+            variant="rail"
             stageIndex={stageIndex}
             loading={loading}
             complete={Boolean(analysis) && !loading}
           />
-          {analysis && (
-            <div style={{ marginTop: "1rem" }}>
-              <div className="stat-row">
-                <span>IP</span>
-                <strong className="mono">{analysis.ip_address}</strong>
-              </div>
-              <div className="stat-row">
-                <span>Attack</span>
-                <strong>{analysis.prediction?.attack || "—"}</strong>
-              </div>
-              <div className="stat-row">
-                <span>Risk</span>
-                <RiskBadge level={analysis.risk?.risk_level} />
-              </div>
-              <div className="stat-row">
-                <span>Score</span>
-                <strong>{formatNumber(analysis.risk?.risk_score, 2)}</strong>
-              </div>
-              <div className="stat-row">
-                <span>Action</span>
-                <ActionBadge action={analysis.decision?.action} />
-              </div>
-              {analysis.analysis_id && (
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  style={{ marginTop: "0.8rem" }}
-                  onClick={async () => {
-                    const ok = await copyToClipboard(analysis.analysis_id);
-                    push(ok ? "Analysis ID copied." : "Copy failed.", ok ? "success" : "error");
-                  }}
-                >
-                  <FiCopy /> Copy Analysis ID
-                </button>
-              )}
-            </div>
-          )}
         </div>
-      </div>
+      </form>
 
       {analysis && (
-        <div style={{ marginTop: "1rem" }}>
+        <div className="analyze-results-wrap">
           <AnalysisResults
             analysis={analysis}
             showPipeline={false}
             pipelineStageIndex={stageIndex}
             pipelineLoading={loading}
+            demoMeta={demoMeta}
           />
         </div>
       )}

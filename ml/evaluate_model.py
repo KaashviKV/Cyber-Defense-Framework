@@ -55,6 +55,36 @@ def get_model_performance_metrics() -> dict[str, Any]:
     model = joblib.load(MODEL_PATH)
     y_pred = model.predict(x_test)
 
+    labels = getattr(model, "classes_", None)
+    y_test_arr = y_test if hasattr(y_test, "__len__") else y_test
+    benign = 0
+    unique = set(int(v) if str(v).isdigit() else v for v in (labels if labels is not None else []))
+    try:
+        unique_test = list(set(y_test.tolist() if hasattr(y_test, "tolist") else list(y_test)))
+    except TypeError:
+        unique_test = []
+    for candidate in (0, "BENIGN", "Benign"):
+        if candidate in unique_test or candidate in unique:
+            benign = candidate
+            break
+
+    yt = y_test_arr
+    try:
+        import numpy as np
+
+        yt_np = np.asarray(y_test)
+        yp_np = np.asarray(y_pred)
+        attack = yt_np != benign
+        benign_mask = yt_np == benign
+        pred_attack = yp_np != benign
+        detection_rate = float(np.mean(pred_attack[attack])) if attack.any() else 0.0
+        fpr = float(np.mean(pred_attack[benign_mask])) if benign_mask.any() else 0.0
+        fnr = float(np.mean(~pred_attack[attack])) if attack.any() else 0.0
+    except Exception:
+        detection_rate = 0.0
+        fpr = 0.0
+        fnr = 0.0
+
     return {
         "algorithm": "Random Forest",
         "dataset": "CICIDS2017",
@@ -71,6 +101,13 @@ def get_model_performance_metrics() -> dict[str, Any]:
             float(f1_score(y_test, y_pred, average="weighted", zero_division=0)),
             4,
         ),
+        "macro_f1": round(
+            float(f1_score(y_test, y_pred, average="macro", zero_division=0)),
+            4,
+        ),
+        "detection_rate": round(detection_rate, 4),
+        "false_positive_rate": round(fpr, 4),
+        "false_negative_rate": round(fnr, 4),
         "test_samples": int(len(y_test)),
     }
 

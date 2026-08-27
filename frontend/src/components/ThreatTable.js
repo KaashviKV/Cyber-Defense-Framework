@@ -26,6 +26,7 @@ export default function ThreatTable({ rows, emptyTitle, emptyMessage }) {
             <th>IP</th>
             <th>Attack</th>
             <th>Confidence</th>
+            <th>VT / Abuse</th>
             <th>Risk</th>
             <th>Action</th>
             <th>Country</th>
@@ -50,6 +51,9 @@ export default function ThreatTable({ rows, emptyTitle, emptyMessage }) {
                 <td className="mono">{row.ip_address || "—"}</td>
                 <td>{safeGet(row, "prediction.attack")}</td>
                 <td>{formatPercent(safeGet(row, "prediction.confidence", null))}</td>
+                <td className="mono">
+                  {row.risk?.virustotal_score ?? "—"} / {row.risk?.abuseipdb_score ?? "—"}
+                </td>
                 <td>
                   <RiskBadge level={safeGet(row, "risk.risk_level", null)} />
                 </td>

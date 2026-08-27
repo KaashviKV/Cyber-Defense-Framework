@@ -1,0 +1,250 @@
+{
+  "experiment": "Phase 4 cross-dataset evaluation",
+  "phase": 4,
+  "generated_at": "2026-08-27T07:12:53.662593+00:00",
+  "task": "binary_normal_vs_attack",
+  "aligned_feature_count": 13,
+  "aligned_features": [
+    "duration_sec",
+    "fwd_packets",
+    "bwd_packets",
+    "fwd_bytes",
+    "bwd_bytes",
+    "fwd_pkt_len_mean",
+    "bwd_pkt_len_mean",
+    "flow_bytes_per_s",
+    "flow_packets_per_s",
+    "fwd_iat_mean",
+    "bwd_iat_mean",
+    "init_win_fwd",
+    "init_win_bwd"
+  ],
+  "alignment": [
+    {
+      "shared_name": "duration_sec",
+      "cicids_source": "Flow Duration",
+      "unsw_source": "dur",
+      "notes": "CICIDS Flow Duration (us) / 1e6 -> seconds; UNSW dur already seconds."
+    },
+    {
+      "shared_name": "fwd_packets",
+      "cicids_source": "Total Fwd Packets",
+      "unsw_source": "spkts",
+      "notes": "Forward/source packet counts."
+    },
+    {
+      "shared_name": "bwd_packets",
+      "cicids_source": "Total Backward Packets",
+      "unsw_source": "dpkts",
+      "notes": "Backward/destination packet counts."
+    },
+    {
+      "shared_name": "fwd_bytes",
+      "cicids_source": "Total Length of Fwd Packets",
+      "unsw_source": "sbytes",
+      "notes": "Forward/source bytes."
+    },
+    {
+      "shared_name": "bwd_bytes",
+      "cicids_source": "Total Length of Bwd Packets",
+      "unsw_source": "dbytes",
+      "notes": "Backward/destination bytes."
+    },
+    {
+      "shared_name": "fwd_pkt_len_mean",
+      "cicids_source": "Fwd Packet Length Mean",
+      "unsw_source": "smean",
+      "notes": "Mean forward/source packet size."
+    },
+    {
+      "shared_name": "bwd_pkt_len_mean",
+      "cicids_source": "Bwd Packet Length Mean",
+      "unsw_source": "dmean",
+      "notes": "Mean backward/destination packet size."
+    },
+    {
+      "shared_name": "flow_bytes_per_s",
+      "cicids_source": "Flow Bytes/s",
+      "unsw_source": "derived: sload + dload",
+      "notes": "UNSW approximated as sload + dload (not identical instrumentation)."
+    },
+    {
+      "shared_name": "flow_packets_per_s",
+      "cicids_source": "Flow Packets/s",
+      "unsw_source": "rate",
+      "notes": "Packet rate; definitions may differ slightly across collectors."
+    },
+    {
+      "shared_name": "fwd_iat_mean",
+      "cicids_source": "Fwd IAT Mean",
+      "unsw_source": "sinpkt",
+      "notes": "Mean forward inter-arrival / source inter-packet time."
+    },
+    {
+      "shared_name": "bwd_iat_mean",
+      "cicids_source": "Bwd IAT Mean",
+      "unsw_source": "dinpkt",
+      "notes": "Mean backward inter-arrival / destination inter-packet time."
+    },
+    {
+      "shared_name": "init_win_fwd",
+      "cicids_source": "Init_Win_bytes_forward",
+      "unsw_source": "swin",
+      "notes": "Initial / source TCP window (related but not guaranteed identical)."
+    },
+    {
+      "shared_name": "init_win_bwd",
+      "cicids_source": "Init_Win_bytes_backward",
+      "unsw_source": "dwin",
+      "notes": "Initial / destination TCP window (related but not guaranteed identical)."
+    }
+  ],
+  "n_estimators": 100,
+  "class_weight": "balanced_subsample",
+  "quick_run": false,
+  "official_splits_note": "CICIDS uses processed train_test_data.pkl; UNSW uses official train/test CSVs. Scaler/imputer fit on source train only.",
+  "in_domain_controls": [
+    {
+      "name": "cicids_aligned_in_domain",
+      "train_rows": 464000,
+      "test_rows": 116000,
+      "feature_count": 13,
+      "metrics": {
+        "accuracy": 0.9976,
+        "precision_attack": 0.9926,
+        "recall_attack": 0.9944,
+        "f1_attack": 0.9935,
+        "attack_recall": 0.9944,
+        "false_positive_rate": 0.0017,
+        "false_negative_rate": 0.0056,
+        "roc_auc": 0.9993,
+        "pr_auc": 0.998,
+        "tp": 21217,
+        "tn": 94505,
+        "fp": 158,
+        "fn": 120,
+        "training_seconds": 48.008
+      }
+    },
+    {
+      "name": "unsw_aligned_in_domain",
+      "train_rows": 175341,
+      "test_rows": 82332,
+      "feature_count": 13,
+      "metrics": {
+        "accuracy": 0.8744,
+        "precision_attack": 0.834,
+        "recall_attack": 0.9638,
+        "f1_attack": 0.8942,
+        "attack_recall": 0.9638,
+        "false_positive_rate": 0.235,
+        "false_negative_rate": 0.0362,
+        "roc_auc": 0.9688,
+        "pr_auc": 0.971,
+        "tp": 43690,
+        "tn": 28305,
+        "fp": 8695,
+        "fn": 1642,
+        "training_seconds": 15.845
+      }
+    }
+  ],
+  "transfers": [
+    {
+      "name": "cicids_to_unsw",
+      "train_rows": 464000,
+      "test_rows": 82332,
+      "feature_count": 13,
+      "metrics": {
+        "accuracy": 0.4494,
+        "precision_attack": 0.0,
+        "recall_attack": 0.0,
+        "f1_attack": 0.0,
+        "attack_recall": 0.0,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "roc_auc": 0.3105,
+        "pr_auc": 0.49,
+        "tp": 0,
+        "tn": 37000,
+        "fp": 0,
+        "fn": 45332,
+        "training_seconds": 48.539
+      }
+    },
+    {
+      "name": "unsw_to_cicids",
+      "train_rows": 175341,
+      "test_rows": 116000,
+      "feature_count": 13,
+      "metrics": {
+        "accuracy": 0.8161,
+        "precision_attack": 0.5,
+        "recall_attack": 0.0,
+        "f1_attack": 0.0001,
+        "attack_recall": 0.0,
+        "false_positive_rate": 0.0,
+        "false_negative_rate": 1.0,
+        "roc_auc": 0.6074,
+        "pr_auc": 0.24,
+        "tp": 1,
+        "tn": 94662,
+        "fp": 1,
+        "fn": 21336,
+        "training_seconds": 16.623
+      }
+    }
+  ],
+  "comparison_table": [
+    {
+      "setting": "cicids_aligned_in_domain",
+      "attack_recall": 0.9944,
+      "false_positive_rate": 0.0017,
+      "false_negative_rate": 0.0056,
+      "roc_auc": 0.9993,
+      "pr_auc": 0.998,
+      "f1_attack": 0.9935,
+      "accuracy": 0.9976
+    },
+    {
+      "setting": "unsw_aligned_in_domain",
+      "attack_recall": 0.9638,
+      "false_positive_rate": 0.235,
+      "false_negative_rate": 0.0362,
+      "roc_auc": 0.9688,
+      "pr_auc": 0.971,
+      "f1_attack": 0.8942,
+      "accuracy": 0.8744
+    },
+    {
+      "setting": "cicids_to_unsw",
+      "attack_recall": 0.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 1.0,
+      "roc_auc": 0.3105,
+      "pr_auc": 0.49,
+      "f1_attack": 0.0,
+      "accuracy": 0.4494
+    },
+    {
+      "setting": "unsw_to_cicids",
+      "attack_recall": 0.0,
+      "false_positive_rate": 0.0,
+      "false_negative_rate": 1.0,
+      "roc_auc": 0.6074,
+      "pr_auc": 0.24,
+      "f1_attack": 0.0001,
+      "accuracy": 0.8161
+    }
+  ],
+  "research_focus": {
+    "question": "Does a carefully aligned numeric feature space transfer between CICIDS2017 and UNSW-NB15 for binary attack detection?",
+    "interpretation_guide": "Large drops from in-domain to transfer performance indicate limited cross-dataset generalization even after alignment \u2014 a scientifically useful negative/qualified result for the SOC pipeline narrative."
+  },
+  "notes": [
+    "This IS a cross-dataset experiment, unlike Phases 1\u20133.",
+    "Alignment is approximate; collectors and feature definitions differ.",
+    "Does not replace production CICIDS Random Forest or change /analyze.",
+    "Production DQN / risk / CTI stack is unchanged."
+  ]
+}

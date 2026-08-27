@@ -3,7 +3,7 @@ MongoDB helpers for analysis documents.
 """
 
 import copy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any, Optional
 
 from backend.config.config import API_VERSION, SCHEMA_VERSION
@@ -119,6 +119,11 @@ def get_metrics_summary() -> dict[str, Any]:
             "blocked_ips": 0,
             "alerts": 0,
             "isolations": 0,
+            "allowed": 0,
+            "attacks_detected": 0,
+            "high_risk": 0,
+            "critical": 0,
+            "feedback_count": 0,
         }
 
     pipeline = [
@@ -140,4 +145,78 @@ def get_metrics_summary() -> dict[str, Any]:
         "blocked_ips": analysis_collection.count_documents({"decision.action": "BLOCK_IP"}),
         "alerts": analysis_collection.count_documents({"decision.action": "ALERT_ADMIN"}),
         "isolations": analysis_collection.count_documents({"decision.action": "ISOLATE_HOST"}),
+        "allowed": analysis_collection.count_documents({"decision.action": "NO_ACTION"}),
+        "attacks_detected": analysis_collection.count_documents({"prediction.attack": {"$ne": "BENIGN"}}),
+        "high_risk": analysis_collection.count_documents({"risk.risk_level": "HIGH"}),
+        "critical": analysis_collection.count_documents({"risk.risk_level": "CRITICAL"}),
+        "feedback_count": analysis_collection.count_documents({"analyst_feedback": {"$exists": True}}),
+        "hitl": get_hitl_stats(),
     }
+
+
+def get_recent_analyses_for_ip(ip_address: str, minutes: int = 15, limit: int = 40) -> list[dict[str, Any]]:
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=max(1, minutes))
+    cursor = (
+        analysis_collection.find({
+            "ip_address": ip_address,
+            "timestamp": {"$gte": cutoff},
+        })
+        .sort("timestamp", -1)
+        .limit(max(1, min(limit, 100)))
+    )
+    return [_serialize_document(doc) for doc in cursor]
+
+
+def get_hitl_stats() -> dict[str, Any]:
+    reviewed = analysis_collection.count_documents({"analyst_feedback": {"$exists": True}})
+    overrides = analysis_collection.count_documents({"analyst_feedback.override_action": {"$exists": True, "$ne": None}})
+    return {
+        "feedback_count": reviewed,
+        "override_count": overrides,
+        "agreement_rate": round(1.0 - (overrides / reviewed), 4) if reviewed else None,
+    }
+
+
+def save_analyst_feedback(
+    analysis_id: str,
+    verdict: str,
+    notes: str = "",
+    override_action: Optional[str] = None,
+) -> Optional[dict[str, Any]]:
+    """Attach analyst feedback used later by RL fine-tuning."""
+    from bson import ObjectId
+    from bson.errors import InvalidId
+
+    allowed = {"correct", "incorrect", "too_aggressive", "too_lenient", "confirm", "override"}
+    if verdict not in allowed:
+        raise ValueError(f"verdict must be one of {sorted(allowed)}")
+
+    allowed_actions = {None, "NO_ACTION", "ALERT_ADMIN", "BLOCK_IP", "ISOLATE_HOST"}
+    if override_action not in allowed_actions:
+        raise ValueError("override_action must be a valid RL action or empty")
+
+    try:
+        object_id = ObjectId(analysis_id)
+    except InvalidId:
+        return None
+
+    existing = analysis_collection.find_one({"_id": object_id}, {"decision.action": 1})
+    ai_action = None
+    if existing:
+        ai_action = (existing.get("decision") or {}).get("action")
+
+    feedback = {
+        "verdict": verdict,
+        "notes": notes or "",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "ai_action": ai_action,
+        "override_action": override_action or None,
+        "agreed": override_action in (None, "", ai_action),
+    }
+    result = analysis_collection.update_one(
+        {"_id": object_id},
+        {"$set": {"analyst_feedback": feedback, "feedback_loop.status": "reviewed"}},
+    )
+    if result.matched_count == 0:
+        return None
+    return get_analysis_by_id(analysis_id)

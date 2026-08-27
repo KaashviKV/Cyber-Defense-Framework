@@ -222,47 +222,93 @@ export function TrendChart({ history }) {
 }
 
 export function ConfidenceRiskScatter({ history }) {
-  const points = history
-    .map((row) => ({
-      x: Number(row.prediction?.confidence),
-      y: Number(row.risk?.risk_score),
-    }))
-    .filter((p) => !Number.isNaN(p.x) && !Number.isNaN(p.y));
+  const points = useMemo(() => {
+    const buckets = new Map();
+    history.forEach((row) => {
+      const x = Number(row.prediction?.confidence);
+      const y = Number(row.risk?.risk_score);
+      if (Number.isNaN(x) || Number.isNaN(y)) return;
+      const key = `${Math.round(x)}|${Math.round(y)}`;
+      const existing = buckets.get(key);
+      if (existing) {
+        existing.r += 1;
+      } else {
+        buckets.set(key, { x, y, r: 1 });
+      }
+    });
+    return Array.from(buckets.values());
+  }, [history]);
+
+  if (!points.length) {
+    return <div className="heatmap-empty">No confidence/risk pairs to plot yet.</div>;
+  }
 
   const data = {
     datasets: [
       {
-        label: "Confidence vs Risk",
-        data: points,
-        backgroundColor: "#8B5CF6",
+        label: "Analyses",
+        data: points.map((p) => ({
+          x: p.x,
+          y: p.y,
+          count: p.r,
+        })),
+        pointRadius: (ctx) => Math.min(12, 4 + (ctx.raw?.count || 1)),
+        pointHoverRadius: (ctx) => Math.min(14, 6 + (ctx.raw?.count || 1)),
+        backgroundColor: points.map((p) =>
+          p.y >= 80 ? "rgba(239, 68, 68, 0.75)" : p.y >= 60 ? "rgba(249, 115, 22, 0.75)" : "rgba(59, 130, 246, 0.7)"
+        ),
+        borderColor: "rgba(15, 23, 42, 0.35)",
+        borderWidth: 1,
       },
     ],
   };
 
   return (
-    <div style={{ height: 280 }}>
-      <Scatter
-        data={data}
-        options={{
-          ...baseOptions,
-          scales: {
-            x: {
-              title: { display: true, text: "Confidence", color: "#94A3B8" },
-              min: 0,
-              max: 100,
-              ticks: { color: "#94A3B8" },
-              grid: { color: "#1F2937" },
+    <div className="scatter-wrap">
+      <p className="heatmap-caption">
+        Each bubble is one or more analyses. X is model confidence, Y is event risk. Size is how
+        many share that point. Blue = lower risk, orange = high, red = critical range.
+      </p>
+      <div className="scatter-canvas">
+        <Scatter
+          data={data}
+          options={{
+            ...baseOptions,
+            plugins: {
+              ...baseOptions.plugins,
+              legend: { display: false },
+              tooltip: {
+                ...baseOptions.plugins.tooltip,
+                callbacks: {
+                  label: (ctx) => {
+                    const raw = ctx.raw || {};
+                    return `Confidence ${Number(raw.x).toFixed(0)} · Risk ${Number(raw.y).toFixed(0)}${
+                      raw.count > 1 ? ` · ${raw.count} analyses` : ""
+                    }`;
+                  },
+                },
+              },
             },
-            y: {
-              title: { display: true, text: "Risk Score", color: "#94A3B8" },
-              min: 0,
-              max: 100,
-              ticks: { color: "#94A3B8" },
-              grid: { color: "#1F2937" },
+            layout: { padding: { top: 8, right: 12, bottom: 4, left: 4 } },
+            scales: {
+              x: {
+                title: { display: true, text: "Model confidence (0–100)", color: "#94A3B8", font: { size: 12 } },
+                min: 0,
+                max: 100,
+                ticks: { color: "#94A3B8", stepSize: 20 },
+                grid: { color: "rgba(31, 41, 55, 0.85)" },
+              },
+              y: {
+                title: { display: true, text: "Risk score (0–100)", color: "#94A3B8", font: { size: 12 } },
+                min: 0,
+                max: 100,
+                ticks: { color: "#94A3B8", stepSize: 20 },
+                grid: { color: "rgba(31, 41, 55, 0.85)" },
+              },
             },
-          },
-        }}
-      />
+          }}
+        />
+      </div>
     </div>
   );
 }

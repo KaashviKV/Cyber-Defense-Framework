@@ -34,8 +34,34 @@ def get_model_info() -> dict[str, Any]:
             "BLOCK_IP",
             "ISOLATE_HOST",
         ],
+        "rl_state": _rl_state_info(),
         "model_paths": {
             "random_forest": str(RF_MODEL_PATH),
             "dqn": str(DQN_MODEL_PATH),
         },
     }
+
+
+def _rl_state_info() -> dict[str, Any]:
+    try:
+        from ml.rl.predict_action import RLDecisionMaker
+        from ml.rl.state_encoder import STATE_FEATURE_NAMES_V2
+
+        rl = RLDecisionMaker()
+        features = (
+            STATE_FEATURE_NAMES_V2
+            if rl.state_size == 5
+            else ["severity", "risk_score"]
+        )
+        return {
+            "model_version": rl.model_version,
+            "state_size": rl.state_size,
+            "features": features,
+        }
+    except Exception as exc:
+        return {
+            "model_version": "unavailable",
+            "state_size": None,
+            "features": [],
+            "error": str(exc),
+        }

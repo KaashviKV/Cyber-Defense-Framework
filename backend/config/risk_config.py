@@ -1,5 +1,13 @@
 """
 Risk Engine Configuration
+
+Primary weights (sum = 1.0) were chosen so that:
+- attack class severity remains the largest term (prioritize known high-impact attacks)
+- CTI (VirusTotal + AbuseIPDB) jointly match severity, so reputation can override a weak ML label
+- model confidence is a stabilizer, not the dominant signal (CICIDS2017 confidence can be overconfident)
+
+Reports and whitelist are modifiers, not extra weights, so historical 4-term scores stay
+stable when those fields are missing (backward compatible).
 """
 
 # -------------------------
@@ -10,6 +18,10 @@ ATTACK_WEIGHT = 0.40
 CONFIDENCE_WEIGHT = 0.20
 VIRUSTOTAL_WEIGHT = 0.20
 ABUSEIPDB_WEIGHT = 0.20
+
+# Report volume is folded into the AbuseIPDB channel (does not change the 4-weight sum).
+REPORTS_BLEND = 0.30
+WHITELIST_CTI_SCALE = 0.35
 
 # -------------------------
 # Attack Severity Scores

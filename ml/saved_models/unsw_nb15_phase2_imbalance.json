@@ -1,0 +1,250 @@
+{
+  "experiment": "UNSW-NB15 Phase 2 class imbalance comparison",
+  "dataset": "UNSW-NB15",
+  "phase": 2,
+  "generated_at": "2026-08-27T06:52:17.830402+00:00",
+  "train_rows": 175341,
+  "test_rows": 82332,
+  "feature_count": 42,
+  "n_estimators": 100,
+  "official_split_preserved": true,
+  "quick_run": false,
+  "train_class_distribution": {
+    "Normal": 56000,
+    "Generic": 40000,
+    "Exploits": 33393,
+    "Fuzzers": 18184,
+    "DoS": 12264,
+    "Reconnaissance": 10491,
+    "Analysis": 2000,
+    "Backdoor": 1746,
+    "Shellcode": 1133,
+    "Worms": 130
+  },
+  "test_class_distribution": {
+    "Normal": 37000,
+    "Generic": 18871,
+    "Exploits": 11132,
+    "Fuzzers": 6062,
+    "DoS": 4089,
+    "Reconnaissance": 3496,
+    "Analysis": 677,
+    "Backdoor": 583,
+    "Shellcode": 378,
+    "Worms": 44
+  },
+  "numeric_feature_count": 39,
+  "categorical_feature_count": 3,
+  "strategies": [
+    {
+      "name": "rf_unweighted",
+      "description": "Random Forest with class_weight=None (no imbalance handling).",
+      "class_weight": null,
+      "oversample_train": false,
+      "multiclass_oversample": null,
+      "binary_oversample": null,
+      "multiclass": {
+        "accuracy": 0.7536,
+        "macro_precision": 0.5165,
+        "macro_recall": 0.4791,
+        "macro_f1": 0.4518,
+        "attack_recall": 0.9765,
+        "false_positive_rate": 0.2449,
+        "false_negative_rate": 0.0235,
+        "roc_auc": 0.9795,
+        "pr_auc": 0.9825,
+        "tp": 44265,
+        "tn": 27940,
+        "fp": 9060,
+        "fn": 1067,
+        "training_seconds": 22.125,
+        "train_rows_used": 175341
+      },
+      "binary_normal_vs_attack": {
+        "accuracy": 0.8719,
+        "precision_attack": 0.8188,
+        "recall_attack": 0.9853,
+        "f1_attack": 0.8944,
+        "attack_recall": 0.9853,
+        "false_positive_rate": 0.2671,
+        "false_negative_rate": 0.0147,
+        "roc_auc": 0.9783,
+        "pr_auc": 0.9813,
+        "tp": 44664,
+        "tn": 27118,
+        "fp": 9882,
+        "fn": 668,
+        "training_seconds": 18.817,
+        "train_rows_used": 175341
+      }
+    },
+    {
+      "name": "rf_balanced",
+      "description": "Random Forest with class_weight='balanced_subsample'.",
+      "class_weight": "balanced_subsample",
+      "oversample_train": false,
+      "multiclass_oversample": null,
+      "binary_oversample": null,
+      "multiclass": {
+        "accuracy": 0.7483,
+        "macro_precision": 0.5294,
+        "macro_recall": 0.5145,
+        "macro_f1": 0.4851,
+        "attack_recall": 0.9698,
+        "false_positive_rate": 0.2351,
+        "false_negative_rate": 0.0302,
+        "roc_auc": 0.9785,
+        "pr_auc": 0.9816,
+        "tp": 43964,
+        "tn": 28302,
+        "fp": 8698,
+        "fn": 1368,
+        "training_seconds": 24.126,
+        "train_rows_used": 175341
+      },
+      "binary_normal_vs_attack": {
+        "accuracy": 0.8713,
+        "precision_attack": 0.8168,
+        "recall_attack": 0.9877,
+        "f1_attack": 0.8942,
+        "attack_recall": 0.9877,
+        "false_positive_rate": 0.2714,
+        "false_negative_rate": 0.0123,
+        "roc_auc": 0.9794,
+        "pr_auc": 0.9818,
+        "tp": 44773,
+        "tn": 26959,
+        "fp": 10041,
+        "fn": 559,
+        "training_seconds": 20.305,
+        "train_rows_used": 175341
+      }
+    },
+    {
+      "name": "rf_oversampled",
+      "description": "Random oversample minority classes on TRAIN only, then RF with class_weight=None.",
+      "class_weight": null,
+      "oversample_train": true,
+      "multiclass_oversample": {
+        "before": {
+          "Analysis": 2000,
+          "Backdoor": 1746,
+          "DoS": 12264,
+          "Exploits": 33393,
+          "Fuzzers": 18184,
+          "Generic": 40000,
+          "Normal": 56000,
+          "Reconnaissance": 10491,
+          "Shellcode": 1133,
+          "Worms": 130
+        },
+        "after": {
+          "Analysis": 56000,
+          "Backdoor": 56000,
+          "DoS": 56000,
+          "Exploits": 56000,
+          "Fuzzers": 56000,
+          "Generic": 56000,
+          "Normal": 56000,
+          "Reconnaissance": 56000,
+          "Shellcode": 56000,
+          "Worms": 56000
+        },
+        "target_per_class": 56000
+      },
+      "binary_oversample": {
+        "before": {
+          "0": 56000,
+          "1": 119341
+        },
+        "after": {
+          "0": 119341,
+          "1": 119341
+        },
+        "target_per_class": 119341
+      },
+      "multiclass": {
+        "accuracy": 0.7275,
+        "macro_precision": 0.5444,
+        "macro_recall": 0.5628,
+        "macro_f1": 0.4966,
+        "attack_recall": 0.9818,
+        "false_positive_rate": 0.2892,
+        "false_negative_rate": 0.0182,
+        "roc_auc": 0.9749,
+        "pr_auc": 0.9756,
+        "tp": 44508,
+        "tn": 26301,
+        "fp": 10699,
+        "fn": 824,
+        "training_seconds": 159.355,
+        "train_rows_used": 560000
+      },
+      "binary_normal_vs_attack": {
+        "accuracy": 0.8847,
+        "precision_attack": 0.838,
+        "recall_attack": 0.98,
+        "f1_attack": 0.9035,
+        "attack_recall": 0.98,
+        "false_positive_rate": 0.2321,
+        "false_negative_rate": 0.02,
+        "roc_auc": 0.9795,
+        "pr_auc": 0.9825,
+        "tp": 44426,
+        "tn": 28413,
+        "fp": 8587,
+        "fn": 906,
+        "training_seconds": 34.996,
+        "train_rows_used": 238682
+      }
+    }
+  ],
+  "comparison_table": [
+    {
+      "strategy": "rf_unweighted",
+      "multiclass_macro_f1": 0.4518,
+      "multiclass_attack_recall": 0.9765,
+      "multiclass_fpr": 0.2449,
+      "binary_attack_recall": 0.9853,
+      "binary_fpr": 0.2671,
+      "binary_roc_auc": 0.9783,
+      "binary_pr_auc": 0.9813
+    },
+    {
+      "strategy": "rf_balanced",
+      "multiclass_macro_f1": 0.4851,
+      "multiclass_attack_recall": 0.9698,
+      "multiclass_fpr": 0.2351,
+      "binary_attack_recall": 0.9877,
+      "binary_fpr": 0.2714,
+      "binary_roc_auc": 0.9794,
+      "binary_pr_auc": 0.9818
+    },
+    {
+      "strategy": "rf_oversampled",
+      "multiclass_macro_f1": 0.4966,
+      "multiclass_attack_recall": 0.9818,
+      "multiclass_fpr": 0.2892,
+      "binary_attack_recall": 0.98,
+      "binary_fpr": 0.2321,
+      "binary_roc_auc": 0.9795,
+      "binary_pr_auc": 0.9825
+    }
+  ],
+  "best_for_soc_fpr": {
+    "strategy": "rf_oversampled",
+    "rule": "lowest binary FPR among strategies with attack_recall >= 0.95",
+    "binary_attack_recall": 0.98,
+    "binary_false_positive_rate": 0.2321
+  },
+  "research_focus": {
+    "question": "Does class weighting or train-only oversampling reduce false positives while preserving high attack recall?",
+    "note": "Even if attack recall stays high, a large FPR remains a SOC cost; CTI + risk fusion + DQN still matter for prioritization."
+  },
+  "notes": [
+    "Oversampling uses random replacement of minority-class rows (no SMOTE dependency).",
+    "Oversampling is applied to the training set only; the official test split is unchanged.",
+    "Does not replace production CICIDS2017 random_forest_model.pkl.",
+    "Not cross-dataset generalization."
+  ]
+}

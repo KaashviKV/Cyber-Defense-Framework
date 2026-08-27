@@ -3,6 +3,15 @@ import { formatDateTime } from "../utils/formatters";
 function buildEvents(analysis) {
   if (!analysis) return [];
 
+  if (Array.isArray(analysis.audit_trail) && analysis.audit_trail.length) {
+    const baseTime = analysis.timestamp ? new Date(analysis.timestamp) : new Date();
+    return analysis.audit_trail.map((item, index) => ({
+      time: new Date(baseTime.getTime() + index * 1000),
+      label: `${item.step}: ${item.detail}`,
+      tone: item.step === "fail_safe" ? "warn" : "info",
+    }));
+  }
+
   const baseTime = analysis.timestamp ? new Date(analysis.timestamp) : new Date();
   const events = [
     {

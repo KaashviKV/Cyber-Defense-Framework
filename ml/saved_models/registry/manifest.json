@@ -1,0 +1,10 @@
+{
+  "detector_version": "rf-1.0",
+  "policy_version": "dqn-2.0",
+  "risk_engine_version": "risk-1.4",
+  "created_at": "2026-08-27T05:49:10.904842+00:00",
+  "artifacts": {
+    "random_forest": "C:\\final yr project\\Cyber-Defense-Framework\\ml\\saved_models\\random_forest_model.pkl",
+    "dqn": "C:\\final yr project\\Cyber-Defense-Framework\\ml\\saved_models\\dqn_model.pth"
+  }
+}

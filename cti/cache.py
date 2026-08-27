@@ -34,8 +34,10 @@ def get_cached_cti(source: str, ip_address: str) -> Optional[dict[str, Any]]:
 def set_cached_cti(source: str, ip_address: str, payload: dict[str, Any]) -> None:
     key = _cache_key(source, ip_address)
     expires_at = time.time() + CTI_CACHE_TTL_SECONDS
+    stored = dict(payload)
+    stored.setdefault("queried_at", time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()))
     with _lock:
-        _store[key] = (expires_at, dict(payload))
+        _store[key] = (expires_at, stored)
 
 
 def clear_cti_cache() -> None:

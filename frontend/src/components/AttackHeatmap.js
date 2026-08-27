@@ -1,7 +1,11 @@
 import { useMemo } from "react";
-import { CHART_PALETTE } from "../utils/constants";
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
+
+function shortAttack(name) {
+  if (!name) return "Unknown";
+  return name.replace("Web Attack – ", "Web ").replace("DoS ", "DoS ");
+}
 
 export default function AttackHeatmap({ history = [] }) {
   const { attacks, matrix, max } = useMemo(() => {
@@ -33,39 +37,50 @@ export default function AttackHeatmap({ history = [] }) {
 
   return (
     <div className="attack-heatmap">
-      <div className="heatmap-hours">
-        <span />
-        {HOURS.filter((h) => h % 4 === 0).map((hour) => (
-          <span key={hour} className="heatmap-hour-label">
-            {String(hour).padStart(2, "0")}:00
-          </span>
-        ))}
-      </div>
-      {attacks.map((attack, rowIdx) => (
-        <div key={attack} className="heatmap-row">
-          <span className="heatmap-attack-label" title={attack}>
-            {attack}
-          </span>
+      <p className="heatmap-caption">
+        Attack class by hour of day (local time). Darker cells mean more events.
+      </p>
+      <div className="heatmap-scroll">
+        <div className="heatmap-row heatmap-axis">
+          <span className="heatmap-attack-label" aria-hidden="true" />
           <div className="heatmap-cells">
-            {matrix[rowIdx].map((value, hour) => {
-              const intensity = value / max;
-              const color = CHART_PALETTE[rowIdx % CHART_PALETTE.length];
-              return (
-                <div
-                  key={`${attack}-${hour}`}
-                  className="heatmap-cell"
-                  title={`${attack} @ ${hour}:00 — ${value} event(s)`}
-                  style={{
-                    backgroundColor: value
-                      ? `${color}${Math.round(30 + intensity * 170).toString(16).padStart(2, "0")}`
-                      : "rgba(15,23,42,0.8)",
-                  }}
-                />
-              );
-            })}
+            {HOURS.map((hour) => (
+              <span key={hour} className="heatmap-hour-tick">
+                {hour % 6 === 0 ? String(hour).padStart(2, "0") : ""}
+              </span>
+            ))}
           </div>
         </div>
-      ))}
+        {attacks.map((attack, rowIdx) => (
+          <div key={attack} className="heatmap-row">
+            <span className="heatmap-attack-label" title={attack}>
+              {shortAttack(attack)}
+            </span>
+            <div className="heatmap-cells">
+              {matrix[rowIdx].map((value, hour) => {
+                const intensity = value / max;
+                return (
+                  <div
+                    key={`${attack}-${hour}`}
+                    className="heatmap-cell"
+                    title={`${attack} at ${String(hour).padStart(2, "0")}:00 — ${value} event(s)`}
+                    style={{
+                      backgroundColor: value
+                        ? `rgba(249, 115, 22, ${0.18 + intensity * 0.82})`
+                        : "rgba(15, 23, 42, 0.9)",
+                    }}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="heatmap-legend" aria-hidden="true">
+        <span>Fewer</span>
+        <span className="heatmap-legend-bar" />
+        <span>More</span>
+      </div>
     </div>
   );
 }

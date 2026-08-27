@@ -78,8 +78,10 @@ export const DEMO_ATTACK_IPS = [
   { ip: "185.220.101.1", label: "High abuse Tor exit" },
   { ip: "23.129.64.190", label: "High abuse reports" },
   { ip: "45.146.164.110", label: "Known malicious host" },
-  { ip: "8.8.8.8", label: "Benign baseline" },
 ];
+
+/** Clean IP for benign demos (not mixed into Demo Attack). */
+export const DEMO_BENIGN_IP = { ip: "8.8.8.8", label: "Benign baseline" };
 
 export const PIPELINE_STAGES = [
   { key: "input", label: "Input", description: "IP + 78 network features" },
@@ -87,7 +89,8 @@ export const PIPELINE_STAGES = [
   { key: "vt", label: "VirusTotal", description: "Global reputation scan" },
   { key: "abuse", label: "AbuseIPDB", description: "Abuse report lookup" },
   { key: "risk", label: "Risk Engine", description: "Weighted risk scoring" },
+  { key: "xai", label: "XAI", description: "Local feature attribution" },
   { key: "dqn", label: "DQN", description: "RL policy evaluation" },
-  { key: "decision", label: "Decision", description: "Defensive action selection" },
-  { key: "mongo", label: "MongoDB", description: "Persist analysis record" },
+  { key: "decision", label: "Simulated Response", description: "Allow / alert / block / isolate" },
+  { key: "mongo", label: "MongoDB", description: "Persist analysis + feedback" },
 ];

@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-08-27T05:50:06.088296+00:00",
+  "dataset": "synthetic_vectors",
+  "note": "Controlled feature noise on the production RF. Not an attack on a live network.",
+  "results": {
+    "noise_1pct": {
+      "flip_rate": 0.0
+    },
+    "noise_5pct": {
+      "flip_rate": 0.0
+    },
+    "noise_10pct": {
+      "flip_rate": 0.0
+    }
+  }
+}

@@ -21,3 +21,7 @@ node_modules/
 venv/
 env/
 ml/venv/
+
+# Oversized research models (regenerate locally via scripts/evaluate_unsw_nb15.py)
+ml/saved_models/random_forest_unsw_nb15.pkl
+ml/saved_models/random_forest_unsw_nb15_binary.pkl

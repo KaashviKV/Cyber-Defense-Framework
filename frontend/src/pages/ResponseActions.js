@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiRefreshCw } from "react-icons/fi";
 import ThreatTable from "../components/ThreatTable";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useHistory } from "../hooks/useHistory";
+import { fetchSimulation } from "../api/research";
 import { ACTIONS } from "../utils/constants";
 import { getActionLabel } from "../utils/formatters";
 
@@ -35,6 +36,21 @@ const TABS = [
 export default function ResponseActions() {
   const [activeTab, setActiveTab] = useState("BLOCK_IP");
   const { history, loading, error, mongoDown, refresh } = useHistory({ limit: 200 });
+  const [simulation, setSimulation] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    fetchSimulation()
+      .then((data) => {
+        if (active) setSimulation(data);
+      })
+      .catch(() => {
+        if (active) setSimulation(null);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const counts = useMemo(() => {
     const map = {};
@@ -56,7 +72,7 @@ export default function ResponseActions() {
       <div className="page-header">
         <div>
           <h2>Response Actions</h2>
-          <p>RL defensive decisions grouped by action type.</p>
+          <p>Simulated SOC controls: allow, alert, blocklist, and host isolation. No live firewall changes.</p>
         </div>
         <div className="page-actions">
           <button type="button" className="btn btn-secondary" onClick={refresh}>
@@ -98,6 +114,13 @@ export default function ResponseActions() {
             </>
           )}
         </p>
+        {simulation?.counts && (
+          <p style={{ margin: "0.75rem 0 0", color: "var(--text-muted)" }}>
+            Simulated state file: blocklist {simulation.counts.blocklist}, isolated{" "}
+            {simulation.counts.isolated_hosts}, alerts {simulation.counts.alerts}, allowed{" "}
+            {simulation.counts.allowed}.
+          </p>
+        )}
       </div>
 
       {loading ? (

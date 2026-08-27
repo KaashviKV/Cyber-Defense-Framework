@@ -1,0 +1,134 @@
+{
+  "generated_at": "2026-08-27T05:12:38.820608+00:00",
+  "current_model_version": "v2_cti",
+  "current_state_size": 5,
+  "experiment": "response_strategy_and_ablation",
+  "results": [
+    {
+      "name": "rule_based",
+      "episodes": 200,
+      "steps": 800,
+      "avg_reward": 57.78,
+      "correct_response_rate": 1.0,
+      "unnecessary_block_rate": 0.0,
+      "critical_threat_response_rate": 1.0,
+      "false_block_rate": 0.0,
+      "missed_high_risk_rate": 0.0,
+      "action_distribution": {
+        "NO_ACTION": 0.0875,
+        "ALERT_ADMIN": 0.1737,
+        "BLOCK_IP": 0.2412,
+        "ISOLATE_HOST": 0.4975
+      },
+      "notes": "correct_response_rate uses the same reward-shaping bands as the environment; the rule-based policy encodes those bands, so it is a strong baseline rather than an independent oracle."
+    },
+    {
+      "name": "ml_only",
+      "episodes": 200,
+      "steps": 800,
+      "avg_reward": 49.65,
+      "correct_response_rate": 0.7562,
+      "unnecessary_block_rate": 0.0,
+      "critical_threat_response_rate": 1.0,
+      "false_block_rate": 0.0,
+      "missed_high_risk_rate": 0.0,
+      "action_distribution": {
+        "NO_ACTION": 0.105,
+        "ALERT_ADMIN": 0.1225,
+        "BLOCK_IP": 0.1762,
+        "ISOLATE_HOST": 0.5962
+      },
+      "notes": "correct_response_rate uses the same reward-shaping bands as the environment; the rule-based policy encodes those bands, so it is a strong baseline rather than an independent oracle."
+    },
+    {
+      "name": "ml_cti",
+      "episodes": 200,
+      "steps": 800,
+      "avg_reward": 51.25,
+      "correct_response_rate": 0.795,
+      "unnecessary_block_rate": 0.0,
+      "critical_threat_response_rate": 1.0,
+      "false_block_rate": 0.0,
+      "missed_high_risk_rate": 0.0,
+      "action_distribution": {
+        "NO_ACTION": 0.125,
+        "ALERT_ADMIN": 0.125,
+        "BLOCK_IP": 0.1375,
+        "ISOLATE_HOST": 0.6125
+      },
+      "notes": "correct_response_rate uses the same reward-shaping bands as the environment; the rule-based policy encodes those bands, so it is a strong baseline rather than an independent oracle."
+    },
+    {
+      "name": "ml_cti_risk",
+      "episodes": 200,
+      "steps": 800,
+      "avg_reward": 57.75,
+      "correct_response_rate": 1.0,
+      "unnecessary_block_rate": 0.0,
+      "critical_threat_response_rate": 1.0,
+      "false_block_rate": 0.0,
+      "missed_high_risk_rate": 0.0,
+      "action_distribution": {
+        "NO_ACTION": 0.09,
+        "ALERT_ADMIN": 0.18,
+        "BLOCK_IP": 0.2537,
+        "ISOLATE_HOST": 0.4763
+      },
+      "notes": "correct_response_rate uses the same reward-shaping bands as the environment; the rule-based policy encodes those bands, so it is a strong baseline rather than an independent oracle."
+    },
+    {
+      "name": "dqn_v1_legacy",
+      "episodes": 200,
+      "steps": 800,
+      "avg_reward": 39.475,
+      "correct_response_rate": 0.495,
+      "unnecessary_block_rate": 0.0,
+      "critical_threat_response_rate": 1.0,
+      "false_block_rate": 0.0,
+      "missed_high_risk_rate": 0.0,
+      "action_distribution": {
+        "NO_ACTION": 0.085,
+        "ALERT_ADMIN": 0.295,
+        "BLOCK_IP": 0.5637,
+        "ISOLATE_HOST": 0.0563
+      },
+      "notes": "correct_response_rate uses the same reward-shaping bands as the environment; the rule-based policy encodes those bands, so it is a strong baseline rather than an independent oracle."
+    },
+    {
+      "name": "dqn_v2_cti",
+      "episodes": 200,
+      "steps": 800,
+      "avg_reward": 51.75,
+      "correct_response_rate": 0.8187,
+      "unnecessary_block_rate": 0.0,
+      "critical_threat_response_rate": 1.0,
+      "false_block_rate": 0.0,
+      "missed_high_risk_rate": 0.0,
+      "action_distribution": {
+        "NO_ACTION": 0.11,
+        "ALERT_ADMIN": 0.1725,
+        "BLOCK_IP": 0.3925,
+        "ISOLATE_HOST": 0.325
+      },
+      "notes": "correct_response_rate uses the same reward-shaping bands as the environment; the rule-based policy encodes those bands, so it is a strong baseline rather than an independent oracle."
+    },
+    {
+      "name": "double_dqn",
+      "episodes": 200,
+      "steps": 800,
+      "avg_reward": 42.58,
+      "correct_response_rate": 0.525,
+      "unnecessary_block_rate": 0.0,
+      "critical_threat_response_rate": 1.0,
+      "false_block_rate": 0.0,
+      "missed_high_risk_rate": 0.0,
+      "action_distribution": {
+        "NO_ACTION": 0.1313,
+        "ALERT_ADMIN": 0.0,
+        "BLOCK_IP": 0.6775,
+        "ISOLATE_HOST": 0.1913
+      },
+      "notes": "correct_response_rate uses the same reward-shaping bands as the environment; the rule-based policy encodes those bands, so it is a strong baseline rather than an independent oracle."
+    }
+  ]
+}

@@ -8,6 +8,8 @@ recommended by the Decision Engine.
 import os
 from datetime import datetime
 
+from ml.response_engine.simulation_state import record_event
+
 
 # Log folder (project-root/logs)
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -42,6 +44,7 @@ def allow_traffic(ip):
         "predictions.log",
         f"Allowed Traffic -> {ip}"
     )
+    return record_event("NO_ACTION", ip)
 
 
 # ---------------------------------------------------
@@ -69,6 +72,7 @@ def alert_admin(ip, risk_score):
         "alerts.log",
         f"ALERT -> {ip} | Risk Score : {risk_score}"
     )
+    return record_event("ALERT_ADMIN", ip, {"risk_score": risk_score})
 
 
 # ---------------------------------------------------
@@ -82,6 +86,7 @@ def block_ip(ip):
         "blocked_ips.log",
         f"Blocked -> {ip}"
     )
+    return record_event("BLOCK_IP", ip)
 
 # ---------------------------------------------------
 # Action 5
@@ -111,3 +116,4 @@ def isolate_host(ip):
         "isolated_hosts.log",
         f"Host Isolated -> {ip}"
     )
+    return record_event("ISOLATE_HOST", ip)

@@ -141,7 +141,7 @@ export default function Analytics() {
             <h3 className="card-title">RL Action Breakdown</h3>
             <ActionChart history={history} />
           </div>
-          <div className="card">
+          <div className="card" style={{ gridColumn: "1 / -1" }}>
             <h3 className="card-title">Confidence vs Risk</h3>
             <ConfidenceRiskScatter history={history} />
           </div>
@@ -149,7 +149,7 @@ export default function Analytics() {
             <h3 className="card-title">Countries with Highest Abuse Reports</h3>
             <CountryChart history={history} />
           </div>
-          <div className="card" style={{ gridColumn: "1 / -1" }}>
+          <div className="card">
             <h3 className="card-title">Threat Severity Histogram</h3>
             <SeverityHistogram history={history} />
           </div>

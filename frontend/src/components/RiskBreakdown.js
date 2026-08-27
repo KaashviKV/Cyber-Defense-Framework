@@ -37,7 +37,7 @@ export default function RiskBreakdown({ analysis }) {
         ))}
       </div>
 
-      <div className="stat-row" style={{ marginTop: "0.75rem" }}>
+      <div className="stat-row">
         <span>Weighted Total</span>
         <strong>{formatNumber(total, 2)}</strong>
       </div>

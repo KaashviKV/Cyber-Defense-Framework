@@ -1,4 +1,5 @@
 import { ACTION_LABELS, RISK_COLORS, ACTION_COLORS } from "./constants";
+import { pickAnyDemoVector } from "./demoVectors";
 
 export function getRiskColor(level) {
   return RISK_COLORS[level] || "#94A3B8";
@@ -147,9 +148,9 @@ export function parseFeatureInput(raw) {
 }
 
 export function generateDemoFeatures() {
-  return Array.from({ length: 78 }, () =>
-    Number((Math.random() * 100).toFixed(4))
-  );
+  // Real CICIDS2017 scaled vectors (not random noise) so demos are meaningful.
+  const sample = pickAnyDemoVector();
+  return sample?.features ? [...sample.features] : Array.from({ length: 78 }, () => 0);
 }
 
 export function exportHistoryToCsv(rows) {

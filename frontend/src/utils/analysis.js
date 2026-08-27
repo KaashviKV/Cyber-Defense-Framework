@@ -4,6 +4,26 @@ import { formatPercent, getActionLabel, hasCtiError } from "./formatters";
 export function computeRiskBreakdown(analysis) {
   const risk = analysis?.risk || {};
   const prediction = analysis?.prediction || {};
+  const colors = {
+    attack: "#EF4444",
+    confidence: "#3B82F6",
+    virustotal: "#8B5CF6",
+    abuseipdb: "#F59E0B",
+  };
+
+  if (Array.isArray(risk.components) && risk.components.length) {
+    const components = risk.components.map((item) => ({
+      key: item.key,
+      label: item.label,
+      weight: Number(item.weight ?? 0),
+      rawScore: Number(item.rawScore ?? 0),
+      contribution: Number(item.contribution ?? 0),
+      color: colors[item.key] || "#94A3B8",
+      weightLabel: `${Math.round(Number(item.weight ?? 0) * 100)}%`,
+    }));
+    const total = components.reduce((sum, item) => sum + item.contribution, 0);
+    return { components, total: Number(total.toFixed(2)) };
+  }
 
   const attackScore = Number(risk.attack_score_used ?? prediction.severity ?? 0);
   const confidence = Number(prediction.confidence ?? 0);
@@ -58,11 +78,12 @@ export function computeRiskBreakdown(analysis) {
 }
 
 export function buildRLExplanation(analysis) {
-  const attack = analysis?.prediction?.attack || "Unknown";
-  const severity = analysis?.prediction?.severity;
-  const confidence = analysis?.prediction?.confidence;
-  const riskScore = analysis?.risk?.risk_score;
-  const riskLevel = analysis?.risk?.risk_level;
+  const backend = analysis?.decision?.explanation;
+  const attack = analysis?.prediction?.attack || backend?.state_context?.attack || "Unknown";
+  const severity = analysis?.prediction?.severity ?? backend?.state_context?.severity;
+  const confidence = analysis?.prediction?.confidence ?? backend?.state_context?.confidence;
+  const riskScore = analysis?.risk?.risk_score ?? backend?.state_context?.risk_score;
+  const riskLevel = analysis?.risk?.risk_level || backend?.state_context?.risk_level;
   const action = analysis?.decision?.action;
   const vt = analysis?.virustotal;
   const abuse = analysis?.abuseipdb;
@@ -71,6 +92,14 @@ export function buildRLExplanation(analysis) {
     `Attack classified as ${attack}.`,
     `Severity = ${severity ?? "—"}, Model confidence = ${formatPercent(confidence)}.`,
   ];
+
+  const vtScore = analysis?.risk?.virustotal_score;
+  const abuseScore = analysis?.risk?.abuseipdb_score;
+  if (vtScore != null || abuseScore != null) {
+    bullets.push(
+      `CTI inputs to RL: VirusTotal score = ${vtScore ?? "—"}, AbuseIPDB score = ${abuseScore ?? "—"}.`
+    );
+  }
 
   if (!hasCtiError(vt) && Number(vt.malicious) > 0) {
     bullets.push(
@@ -84,24 +113,39 @@ export function buildRLExplanation(analysis) {
 
   bullets.push(`Overall Risk Score = ${riskScore ?? "—"} (${riskLevel || "—"}).`);
 
-  let recommendation = "";
-  if (action === "BLOCK_IP") {
-    recommendation =
-      "RL recommends blocking because high-risk attacks receive higher reward when blocked during training.";
-  } else if (action === "ISOLATE_HOST") {
-    recommendation =
-      "RL recommends host isolation for severe intrusions where containment limits lateral movement.";
-  } else if (action === "ALERT_ADMIN") {
-    recommendation =
-      "RL recommends alerting the administrator to investigate while allowing monitored traffic.";
-  } else {
-    recommendation =
-      "RL recommends allowing traffic because the combined risk score is within the safe operating range.";
+  const modelVersion = analysis?.decision?.rl_model_version;
+  if (modelVersion) {
+    bullets.push(`RL policy version = ${modelVersion}.`);
   }
+
+  if (backend?.baseline_rule_action) {
+    bullets.push(
+      `Rule-based baseline would choose ${backend.baseline_rule_action}` +
+        `${backend.agrees_with_rule_baseline ? " (agreement)." : " (policy differs)."}`
+    );
+  }
+
+  const recommendation = backend?.summary
+    ? `${backend.summary} ${backend.caveat || ""}`
+    : fallbackRecommendation(action);
 
   return {
     bullets,
     recommendation,
     actionLabel: getActionLabel(action),
+    qRanking: backend?.q_ranking || [],
   };
+}
+
+function fallbackRecommendation(action) {
+  if (action === "BLOCK_IP") {
+    return "Recommended action BLOCK_IP from the current risk/CTI state. This is simulated containment, not a live firewall change.";
+  }
+  if (action === "ISOLATE_HOST") {
+    return "Recommended action ISOLATE_HOST for critical-range risk. Isolation is simulated host containment.";
+  }
+  if (action === "ALERT_ADMIN") {
+    return "Recommended action ALERT_ADMIN: investigate before blocking. Event is logged as a simulated alert.";
+  }
+  return "Recommended action NO_ACTION: combined risk is in a safe range. Traffic is allowed and logged.";
 }

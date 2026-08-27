@@ -122,7 +122,7 @@ class DQNAgent:
         return torch.argmax(q_values).item()
 
     # ==========================
-    # Experience Replay
+    # Experience Replay (batched)
     # ==========================
 
     def replay(self):
@@ -130,42 +130,26 @@ class DQNAgent:
         if len(self.memory) < self.batch_size:
             return
 
-        mini_batch = random.sample(
-            self.memory,
-            self.batch_size
-        )
+        mini_batch = random.sample(self.memory, self.batch_size)
 
-        for state, action, reward, next_state, done in mini_batch:
+        states = torch.FloatTensor([item[0] for item in mini_batch]).to(self.device)
+        actions = torch.LongTensor([item[1] for item in mini_batch]).to(self.device)
+        rewards = torch.FloatTensor([item[2] for item in mini_batch]).to(self.device)
+        next_states = torch.FloatTensor([item[3] for item in mini_batch]).to(self.device)
+        dones = torch.FloatTensor([float(item[4]) for item in mini_batch]).to(self.device)
 
-            state = torch.FloatTensor(state).to(self.device)
-            next_state = torch.FloatTensor(next_state).to(self.device)
+        q_values = self.model(states)
+        q_selected = q_values.gather(1, actions.unsqueeze(1)).squeeze(1)
 
-            target = reward
+        with torch.no_grad():
+            next_q = self.target_model(next_states).max(1)[0]
+            targets = rewards + self.gamma * next_q * (1.0 - dones)
 
-            if not done:
+        loss = self.loss_function(q_selected, targets)
 
-                target = reward + self.gamma * torch.max(
-                    self.target_model(next_state)
-                ).item()
-
-            target_f = self.model(state)
-
-            target_f = target_f.clone()
-
-            target_f[action] = target
-
-            prediction = self.model(state)
-
-            loss = self.loss_function(
-                prediction,
-                target_f
-            )
-
-            self.optimizer.zero_grad()
-
-            loss.backward()
-
-            self.optimizer.step()
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
 
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay

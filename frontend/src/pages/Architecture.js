@@ -24,7 +24,7 @@ const NODES = [
     icon: FiGlobe,
     summary: "VirusTotal and AbuseIPDB enrich the IP with global reputation data.",
     details:
-      "CTI APIs provide malicious vote counts, abuse confidence, country, and usage type. Results are cached and retried for resilience.",
+      "CTI APIs provide malicious vote counts, abuse confidence, country, and usage type. Results are cached and retried. If API keys are missing, enrichment is skipped and the risk engine continues with ML signals (unknown CTI, not treated as clean).",
   },
   {
     id: "risk",
@@ -32,7 +32,15 @@ const NODES = [
     icon: FiShield,
     summary: "Weighted fusion: Attack 40%, Confidence 20%, VT 20%, AbuseIPDB 20%.",
     details:
-      "The risk engine combines ML and CTI signals into a 0–100 score mapped to SAFE, LOW, MEDIUM, HIGH, or CRITICAL levels.",
+      "The risk engine combines ML and CTI signals into a 0–100 score mapped to SAFE, LOW, MEDIUM, HIGH, or CRITICAL. Report volume is blended into AbuseIPDB; whitelist scales CTI.",
+  },
+  {
+    id: "xai",
+    title: "Explainable AI",
+    icon: FiCpu,
+    summary: "Local feature attribution for the predicted attack class.",
+    details:
+      "Each analysis includes leave-one-feature-out importance so an analyst can see why this flow was classified as a given attack, plus global Random Forest importances.",
   },
   {
     id: "dqn",
@@ -40,7 +48,15 @@ const NODES = [
     icon: FiCpu,
     summary: "Reinforcement learning agent selects a defensive action.",
     details:
-      "The DQN policy maps state vectors (attack, severity, risk) to actions: NO_ACTION, ALERT_ADMIN, BLOCK_IP, or ISOLATE_HOST.",
+      "The DQN policy maps CTI-aware state vectors to simulated actions. Q-values are shown as relative preference, not human-readable causal reasoning.",
+  },
+  {
+    id: "sim",
+    title: "Simulated Response",
+    icon: FiShield,
+    summary: "Allow, alert, blocklist, or isolate — logged only.",
+    details:
+      "Actions update a JSON SOC state and log files. Nothing is pushed to a real firewall.",
   },
   {
     id: "mongo",
@@ -48,7 +64,7 @@ const NODES = [
     icon: FiDatabase,
     summary: "Persists full analysis for SOC history, analytics, and audit.",
     details:
-      "Each pipeline run stores prediction, CTI, risk, decision, performance timings, and request metadata for dashboard visualization.",
+      "Each pipeline run stores prediction, CTI, risk, decision, explanation, timings, and optional analyst feedback for fine-tuning.",
   },
 ];
 

@@ -1,0 +1,83 @@
+{
+  "generated_at": "2026-08-27T05:09:39.747617+00:00",
+  "question": "Does every component of the architecture change the response?",
+  "results": [
+    {
+      "case": "Benign DNS resolver",
+      "attack": "BENIGN",
+      "ml_only": "NO_ACTION",
+      "ml_cti": "NO_ACTION",
+      "ml_cti_risk": "NO_ACTION",
+      "ml_cti_risk_dqn": "NO_ACTION",
+      "risk_score": 17.6,
+      "risk_level": "SAFE",
+      "cti_reputation_boost": true
+    },
+    {
+      "case": "High-abuse Tor exit (BENIGN ML + hot CTI)",
+      "attack": "BENIGN",
+      "ml_only": "NO_ACTION",
+      "ml_cti": "ISOLATE_HOST",
+      "ml_cti_risk": "BLOCK_IP",
+      "ml_cti_risk_dqn": "BLOCK_IP",
+      "risk_score": 73.2,
+      "risk_level": "HIGH",
+      "cti_reputation_boost": true
+    },
+    {
+      "case": "Classic DDoS",
+      "attack": "DDoS",
+      "ml_only": "ISOLATE_HOST",
+      "ml_cti": "ISOLATE_HOST",
+      "ml_cti_risk": "BLOCK_IP",
+      "ml_cti_risk_dqn": "BLOCK_IP",
+      "risk_score": 79.2,
+      "risk_level": "HIGH",
+      "cti_reputation_boost": false
+    },
+    {
+      "case": "Port scan medium risk",
+      "attack": "PortScan",
+      "ml_only": "ALERT_ADMIN",
+      "ml_cti": "ALERT_ADMIN",
+      "ml_cti_risk": "ALERT_ADMIN",
+      "ml_cti_risk_dqn": "ALERT_ADMIN",
+      "risk_score": 45.0,
+      "risk_level": "MEDIUM",
+      "cti_reputation_boost": false
+    },
+    {
+      "case": "Infiltration critical",
+      "attack": "Infiltration",
+      "ml_only": "ISOLATE_HOST",
+      "ml_cti": "ISOLATE_HOST",
+      "ml_cti_risk": "ISOLATE_HOST",
+      "ml_cti_risk_dqn": "ISOLATE_HOST",
+      "risk_score": 90.2,
+      "risk_level": "CRITICAL",
+      "cti_reputation_boost": false
+    },
+    {
+      "case": "Low-risk Bot",
+      "attack": "Bot",
+      "ml_only": "ALERT_ADMIN",
+      "ml_cti": "ALERT_ADMIN",
+      "ml_cti_risk": "NO_ACTION",
+      "ml_cti_risk_dqn": "ALERT_ADMIN",
+      "risk_score": 38.4,
+      "risk_level": "LOW",
+      "cti_reputation_boost": false
+    },
+    {
+      "case": "Conflicting CTI (DDoS ML, clean reputation)",
+      "attack": "DDoS",
+      "ml_only": "ISOLATE_HOST",
+      "ml_cti": "ISOLATE_HOST",
+      "ml_cti_risk": "ALERT_ADMIN",
+      "ml_cti_risk_dqn": "ALERT_ADMIN",
+      "risk_score": 57.6,
+      "risk_level": "MEDIUM",
+      "cti_reputation_boost": false
+    }
+  ]
+}

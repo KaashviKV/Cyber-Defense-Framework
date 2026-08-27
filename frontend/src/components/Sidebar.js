@@ -2,24 +2,21 @@ import { NavLink } from "react-router-dom";
 import {
   FiActivity,
   FiAlertTriangle,
-  FiBarChart2,
   FiBookOpen,
   FiCpu,
   FiGrid,
-  FiInfo,
   FiShield,
   FiZap,
 } from "react-icons/fi";
 
+/** Primary nav for project panel / viva — keep focused. */
 const links = [
   { to: "/", label: "Overview", icon: FiGrid, end: true },
   { to: "/analyze", label: "Live Analyze", icon: FiZap },
   { to: "/history", label: "Threat History", icon: FiActivity },
   { to: "/actions", label: "Response Actions", icon: FiAlertTriangle },
-  { to: "/analytics", label: "Analytics", icon: FiBarChart2 },
+  { to: "/experiments", label: "Experiments", icon: FiBookOpen },
   { to: "/architecture", label: "Architecture", icon: FiCpu },
-  { to: "/project-stats", label: "Project Stats", icon: FiBookOpen },
-  { to: "/about", label: "About", icon: FiInfo },
 ];
 
 export default function Sidebar({ collapsed }) {

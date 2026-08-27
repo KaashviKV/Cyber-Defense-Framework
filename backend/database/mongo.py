@@ -15,6 +15,7 @@ client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
 db = client[MONGO_DB_NAME]
 
 analysis_collection = db[MONGO_COLLECTION]
+incidents_collection = db["incidents"]
 
 
 def get_mongo_status() -> Literal["connected", "disconnected"]:

@@ -1,0 +1,1231 @@
+{
+  "experiment": "UNSW-NB15 Phase 1 analysis",
+  "dataset": "UNSW-NB15",
+  "phase": 1,
+  "generated_at": "2026-08-27T06:44:41.228410+00:00",
+  "train_rows": 175341,
+  "test_rows": 82332,
+  "feature_count": 42,
+  "numeric_feature_count": 39,
+  "categorical_feature_count": 3,
+  "official_split_preserved": true,
+  "quick_run": false,
+  "train_class_distribution": {
+    "Normal": 56000,
+    "Generic": 40000,
+    "Exploits": 33393,
+    "Fuzzers": 18184,
+    "DoS": 12264,
+    "Reconnaissance": 10491,
+    "Analysis": 2000,
+    "Backdoor": 1746,
+    "Shellcode": 1133,
+    "Worms": 130
+  },
+  "test_class_distribution": {
+    "Normal": 37000,
+    "Generic": 18871,
+    "Exploits": 11132,
+    "Fuzzers": 6062,
+    "DoS": 4089,
+    "Reconnaissance": 3496,
+    "Analysis": 677,
+    "Backdoor": 583,
+    "Shellcode": 378,
+    "Worms": 44
+  },
+  "research_focus": {
+    "observation": "Multiclass RF can achieve high attack recall while still producing a high false-positive rate on Normal traffic \u2014 costly for SOC analysts.",
+    "question": "Can we maintain high attack detection while reducing false positives (via CTI enrichment, risk fusion, and DQN prioritization)?"
+  },
+  "multiclass": {
+    "task": "multiclass_attack_cat",
+    "metrics": {
+      "accuracy": 0.7483,
+      "macro_precision": 0.5294,
+      "macro_recall": 0.5145,
+      "macro_f1": 0.4851,
+      "attack_recall": 0.9698,
+      "false_positive_rate": 0.2351,
+      "false_negative_rate": 0.0302,
+      "roc_auc_normal_vs_attack": 0.9785,
+      "pr_auc_normal_vs_attack": 0.9816,
+      "training_seconds": null
+    },
+    "per_class": [
+      {
+        "class": "Analysis",
+        "precision": 0.0319,
+        "recall": 0.0591,
+        "f1": 0.0415,
+        "support": 677
+      },
+      {
+        "class": "Backdoor",
+        "precision": 0.0383,
+        "recall": 0.3276,
+        "f1": 0.0686,
+        "support": 583
+      },
+      {
+        "class": "DoS",
+        "precision": 0.3157,
+        "recall": 0.1927,
+        "f1": 0.2393,
+        "support": 4089
+      },
+      {
+        "class": "Exploits",
+        "precision": 0.732,
+        "recall": 0.6751,
+        "f1": 0.7024,
+        "support": 11132
+      },
+      {
+        "class": "Fuzzers",
+        "precision": 0.2976,
+        "recall": 0.5775,
+        "f1": 0.3928,
+        "support": 6062
+      },
+      {
+        "class": "Generic",
+        "precision": 0.999,
+        "recall": 0.9668,
+        "f1": 0.9826,
+        "support": 18871
+      },
+      {
+        "class": "Normal",
+        "precision": 0.9539,
+        "recall": 0.7649,
+        "f1": 0.849,
+        "support": 37000
+      },
+      {
+        "class": "Reconnaissance",
+        "precision": 0.918,
+        "recall": 0.7938,
+        "f1": 0.8514,
+        "support": 3496
+      },
+      {
+        "class": "Shellcode",
+        "precision": 0.4073,
+        "recall": 0.6508,
+        "f1": 0.501,
+        "support": 378
+      },
+      {
+        "class": "Worms",
+        "precision": 0.6,
+        "recall": 0.1364,
+        "f1": 0.2222,
+        "support": 44
+      }
+    ],
+    "confusion_matrix_analysis": {
+      "labels": [
+        "Analysis",
+        "Backdoor",
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Normal",
+        "Reconnaissance",
+        "Shellcode",
+        "Worms"
+      ],
+      "matrix": [
+        [
+          40,
+          268,
+          212,
+          56,
+          73,
+          0,
+          28,
+          0,
+          0,
+          0
+        ],
+        [
+          40,
+          191,
+          228,
+          18,
+          77,
+          0,
+          26,
+          0,
+          3,
+          0
+        ],
+        [
+          332,
+          1881,
+          788,
+          813,
+          153,
+          5,
+          44,
+          37,
+          36,
+          0
+        ],
+        [
+          366,
+          1886,
+          685,
+          7515,
+          299,
+          4,
+          165,
+          144,
+          65,
+          3
+        ],
+        [
+          110,
+          511,
+          436,
+          291,
+          3501,
+          2,
+          1078,
+          22,
+          111,
+          0
+        ],
+        [
+          0,
+          8,
+          78,
+          460,
+          57,
+          18245,
+          6,
+          4,
+          12,
+          1
+        ],
+        [
+          325,
+          0,
+          13,
+          699,
+          7516,
+          6,
+          28302,
+          34,
+          105,
+          0
+        ],
+        [
+          40,
+          237,
+          49,
+          326,
+          34,
+          0,
+          9,
+          2775,
+          26,
+          0
+        ],
+        [
+          0,
+          0,
+          7,
+          55,
+          51,
+          1,
+          11,
+          7,
+          246,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          34,
+          2,
+          1,
+          1,
+          0,
+          0,
+          6
+        ]
+      ],
+      "row_normalized": [
+        [
+          0.0591,
+          0.3959,
+          0.3131,
+          0.0827,
+          0.1078,
+          0.0,
+          0.0414,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0686,
+          0.3276,
+          0.3911,
+          0.0309,
+          0.1321,
+          0.0,
+          0.0446,
+          0.0,
+          0.0051,
+          0.0
+        ],
+        [
+          0.0812,
+          0.46,
+          0.1927,
+          0.1988,
+          0.0374,
+          0.0012,
+          0.0108,
+          0.009,
+          0.0088,
+          0.0
+        ],
+        [
+          0.0329,
+          0.1694,
+          0.0615,
+          0.6751,
+          0.0269,
+          0.0004,
+          0.0148,
+          0.0129,
+          0.0058,
+          0.0003
+        ],
+        [
+          0.0181,
+          0.0843,
+          0.0719,
+          0.048,
+          0.5775,
+          0.0003,
+          0.1778,
+          0.0036,
+          0.0183,
+          0.0
+        ],
+        [
+          0.0,
+          0.0004,
+          0.0041,
+          0.0244,
+          0.003,
+          0.9668,
+          0.0003,
+          0.0002,
+          0.0006,
+          0.0001
+        ],
+        [
+          0.0088,
+          0.0,
+          0.0004,
+          0.0189,
+          0.2031,
+          0.0002,
+          0.7649,
+          0.0009,
+          0.0028,
+          0.0
+        ],
+        [
+          0.0114,
+          0.0678,
+          0.014,
+          0.0932,
+          0.0097,
+          0.0,
+          0.0026,
+          0.7938,
+          0.0074,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0185,
+          0.1455,
+          0.1349,
+          0.0026,
+          0.0291,
+          0.0185,
+          0.6508,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.7727,
+          0.0455,
+          0.0227,
+          0.0227,
+          0.0,
+          0.0,
+          0.1364
+        ]
+      ],
+      "column_normalized": [
+        [
+          0.0319,
+          0.0538,
+          0.0849,
+          0.0055,
+          0.0062,
+          0.0,
+          0.0009,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0319,
+          0.0383,
+          0.0913,
+          0.0018,
+          0.0065,
+          0.0,
+          0.0009,
+          0.0,
+          0.005,
+          0.0
+        ],
+        [
+          0.265,
+          0.3776,
+          0.3157,
+          0.0792,
+          0.013,
+          0.0003,
+          0.0015,
+          0.0122,
+          0.0596,
+          0.0
+        ],
+        [
+          0.2921,
+          0.3786,
+          0.2744,
+          0.732,
+          0.0254,
+          0.0002,
+          0.0056,
+          0.0476,
+          0.1076,
+          0.3
+        ],
+        [
+          0.0878,
+          0.1026,
+          0.1747,
+          0.0283,
+          0.2976,
+          0.0001,
+          0.0363,
+          0.0073,
+          0.1838,
+          0.0
+        ],
+        [
+          0.0,
+          0.0016,
+          0.0312,
+          0.0448,
+          0.0048,
+          0.999,
+          0.0002,
+          0.0013,
+          0.0199,
+          0.1
+        ],
+        [
+          0.2594,
+          0.0,
+          0.0052,
+          0.0681,
+          0.639,
+          0.0003,
+          0.9539,
+          0.0112,
+          0.1738,
+          0.0
+        ],
+        [
+          0.0319,
+          0.0476,
+          0.0196,
+          0.0318,
+          0.0029,
+          0.0,
+          0.0003,
+          0.918,
+          0.043,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0028,
+          0.0054,
+          0.0043,
+          0.0001,
+          0.0004,
+          0.0023,
+          0.4073,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0033,
+          0.0002,
+          0.0001,
+          0.0,
+          0.0,
+          0.0,
+          0.6
+        ]
+      ],
+      "top_confusions": [
+        {
+          "true": "Normal",
+          "predicted": "Fuzzers",
+          "count": 7516,
+          "share_of_true_class": 0.2031
+        },
+        {
+          "true": "Exploits",
+          "predicted": "Backdoor",
+          "count": 1886,
+          "share_of_true_class": 0.1694
+        },
+        {
+          "true": "DoS",
+          "predicted": "Backdoor",
+          "count": 1881,
+          "share_of_true_class": 0.46
+        },
+        {
+          "true": "Fuzzers",
+          "predicted": "Normal",
+          "count": 1078,
+          "share_of_true_class": 0.1778
+        },
+        {
+          "true": "DoS",
+          "predicted": "Exploits",
+          "count": 813,
+          "share_of_true_class": 0.1988
+        },
+        {
+          "true": "Normal",
+          "predicted": "Exploits",
+          "count": 699,
+          "share_of_true_class": 0.0189
+        },
+        {
+          "true": "Exploits",
+          "predicted": "DoS",
+          "count": 685,
+          "share_of_true_class": 0.0615
+        },
+        {
+          "true": "Fuzzers",
+          "predicted": "Backdoor",
+          "count": 511,
+          "share_of_true_class": 0.0843
+        },
+        {
+          "true": "Generic",
+          "predicted": "Exploits",
+          "count": 460,
+          "share_of_true_class": 0.0244
+        },
+        {
+          "true": "Fuzzers",
+          "predicted": "DoS",
+          "count": 436,
+          "share_of_true_class": 0.0719
+        },
+        {
+          "true": "Exploits",
+          "predicted": "Analysis",
+          "count": 366,
+          "share_of_true_class": 0.0329
+        },
+        {
+          "true": "DoS",
+          "predicted": "Analysis",
+          "count": 332,
+          "share_of_true_class": 0.0812
+        },
+        {
+          "true": "Reconnaissance",
+          "predicted": "Exploits",
+          "count": 326,
+          "share_of_true_class": 0.0932
+        },
+        {
+          "true": "Normal",
+          "predicted": "Analysis",
+          "count": 325,
+          "share_of_true_class": 0.0088
+        },
+        {
+          "true": "Exploits",
+          "predicted": "Fuzzers",
+          "count": 299,
+          "share_of_true_class": 0.0269
+        },
+        {
+          "true": "Fuzzers",
+          "predicted": "Exploits",
+          "count": 291,
+          "share_of_true_class": 0.048
+        },
+        {
+          "true": "Analysis",
+          "predicted": "Backdoor",
+          "count": 268,
+          "share_of_true_class": 0.3959
+        },
+        {
+          "true": "Reconnaissance",
+          "predicted": "Backdoor",
+          "count": 237,
+          "share_of_true_class": 0.0678
+        },
+        {
+          "true": "Backdoor",
+          "predicted": "DoS",
+          "count": 228,
+          "share_of_true_class": 0.3911
+        },
+        {
+          "true": "Analysis",
+          "predicted": "DoS",
+          "count": 212,
+          "share_of_true_class": 0.3131
+        },
+        {
+          "true": "Exploits",
+          "predicted": "Normal",
+          "count": 165,
+          "share_of_true_class": 0.0148
+        },
+        {
+          "true": "DoS",
+          "predicted": "Fuzzers",
+          "count": 153,
+          "share_of_true_class": 0.0374
+        },
+        {
+          "true": "Exploits",
+          "predicted": "Reconnaissance",
+          "count": 144,
+          "share_of_true_class": 0.0129
+        },
+        {
+          "true": "Fuzzers",
+          "predicted": "Shellcode",
+          "count": 111,
+          "share_of_true_class": 0.0183
+        },
+        {
+          "true": "Fuzzers",
+          "predicted": "Analysis",
+          "count": 110,
+          "share_of_true_class": 0.0181
+        }
+      ],
+      "diagonal_correct": 61609,
+      "total": 82332
+    },
+    "binary_collapse": {
+      "tp": 43964,
+      "tn": 28302,
+      "fp": 8698,
+      "fn": 1368,
+      "note": "Multiclass predictions collapsed: any non-Normal class counts as attack."
+    },
+    "feature_importance": {
+      "encoded_top": [
+        {
+          "feature": "num__sbytes",
+          "importance": 0.093813
+        },
+        {
+          "feature": "num__smean",
+          "importance": 0.077984
+        },
+        {
+          "feature": "num__ct_dst_src_ltm",
+          "importance": 0.051571
+        },
+        {
+          "feature": "num__ct_srv_dst",
+          "importance": 0.043609
+        },
+        {
+          "feature": "num__ct_srv_src",
+          "importance": 0.043007
+        },
+        {
+          "feature": "num__sload",
+          "importance": 0.039705
+        },
+        {
+          "feature": "num__sttl",
+          "importance": 0.031931
+        },
+        {
+          "feature": "num__rate",
+          "importance": 0.02959
+        },
+        {
+          "feature": "num__dbytes",
+          "importance": 0.028095
+        },
+        {
+          "feature": "cat__service_-",
+          "importance": 0.025349
+        },
+        {
+          "feature": "cat__proto_udp",
+          "importance": 0.025242
+        },
+        {
+          "feature": "num__dur",
+          "importance": 0.024822
+        },
+        {
+          "feature": "num__dmean",
+          "importance": 0.024009
+        },
+        {
+          "feature": "num__ct_src_dport_ltm",
+          "importance": 0.023919
+        },
+        {
+          "feature": "num__sinpkt",
+          "importance": 0.023381
+        },
+        {
+          "feature": "num__dload",
+          "importance": 0.02277
+        },
+        {
+          "feature": "num__ct_src_ltm",
+          "importance": 0.020726
+        },
+        {
+          "feature": "num__ct_dst_sport_ltm",
+          "importance": 0.020506
+        },
+        {
+          "feature": "num__sjit",
+          "importance": 0.020022
+        },
+        {
+          "feature": "cat__service_dns",
+          "importance": 0.019885
+        },
+        {
+          "feature": "num__ackdat",
+          "importance": 0.019221
+        },
+        {
+          "feature": "num__dinpkt",
+          "importance": 0.019109
+        },
+        {
+          "feature": "num__synack",
+          "importance": 0.019074
+        },
+        {
+          "feature": "cat__service_http",
+          "importance": 0.018143
+        },
+        {
+          "feature": "num__dpkts",
+          "importance": 0.016812
+        },
+        {
+          "feature": "num__dloss",
+          "importance": 0.016723
+        },
+        {
+          "feature": "num__tcprtt",
+          "importance": 0.016462
+        },
+        {
+          "feature": "num__ct_dst_ltm",
+          "importance": 0.01641
+        },
+        {
+          "feature": "num__ct_state_ttl",
+          "importance": 0.015415
+        },
+        {
+          "feature": "num__djit",
+          "importance": 0.014979
+        }
+      ],
+      "original_feature_top": [
+        {
+          "feature": "sbytes",
+          "importance": 0.093813
+        },
+        {
+          "feature": "smean",
+          "importance": 0.077984
+        },
+        {
+          "feature": "service",
+          "importance": 0.066822
+        },
+        {
+          "feature": "ct_dst_src_ltm",
+          "importance": 0.051571
+        },
+        {
+          "feature": "proto",
+          "importance": 0.050827
+        },
+        {
+          "feature": "ct_srv_dst",
+          "importance": 0.043609
+        },
+        {
+          "feature": "ct_srv_src",
+          "importance": 0.043007
+        },
+        {
+          "feature": "sload",
+          "importance": 0.039705
+        },
+        {
+          "feature": "sttl",
+          "importance": 0.031931
+        },
+        {
+          "feature": "rate",
+          "importance": 0.02959
+        },
+        {
+          "feature": "dbytes",
+          "importance": 0.028095
+        },
+        {
+          "feature": "dur",
+          "importance": 0.024822
+        },
+        {
+          "feature": "dmean",
+          "importance": 0.024009
+        },
+        {
+          "feature": "ct_src_dport_ltm",
+          "importance": 0.023919
+        },
+        {
+          "feature": "sinpkt",
+          "importance": 0.023381
+        },
+        {
+          "feature": "dload",
+          "importance": 0.02277
+        },
+        {
+          "feature": "ct_src_ltm",
+          "importance": 0.020726
+        },
+        {
+          "feature": "ct_dst_sport_ltm",
+          "importance": 0.020506
+        },
+        {
+          "feature": "sjit",
+          "importance": 0.020022
+        },
+        {
+          "feature": "ackdat",
+          "importance": 0.019221
+        },
+        {
+          "feature": "dinpkt",
+          "importance": 0.019109
+        },
+        {
+          "feature": "synack",
+          "importance": 0.019074
+        },
+        {
+          "feature": "dpkts",
+          "importance": 0.016812
+        },
+        {
+          "feature": "dloss",
+          "importance": 0.016723
+        },
+        {
+          "feature": "tcprtt",
+          "importance": 0.016462
+        },
+        {
+          "feature": "ct_dst_ltm",
+          "importance": 0.01641
+        },
+        {
+          "feature": "ct_state_ttl",
+          "importance": 0.015415
+        },
+        {
+          "feature": "djit",
+          "importance": 0.014979
+        },
+        {
+          "feature": "sloss",
+          "importance": 0.014729
+        },
+        {
+          "feature": "spkts",
+          "importance": 0.013352
+        }
+      ],
+      "encoded_feature_count": 194,
+      "original_feature_count": 42
+    }
+  },
+  "binary_normal_vs_attack": {
+    "task": "binary_normal_vs_attack",
+    "positive_class": "Attack",
+    "negative_class": "Normal",
+    "metrics": {
+      "accuracy": 0.8713,
+      "precision_attack": 0.8168,
+      "recall_attack": 0.9877,
+      "f1_attack": 0.8942,
+      "attack_recall": 0.9877,
+      "false_positive_rate": 0.2714,
+      "false_negative_rate": 0.0123,
+      "roc_auc": 0.9794,
+      "pr_auc": 0.9818,
+      "training_seconds": 20.032
+    },
+    "confusion_matrix": {
+      "labels": [
+        "Normal(0)",
+        "Attack(1)"
+      ],
+      "matrix": [
+        [
+          26959,
+          10041
+        ],
+        [
+          559,
+          44773
+        ]
+      ],
+      "tp": 44773,
+      "tn": 26959,
+      "fp": 10041,
+      "fn": 559
+    },
+    "feature_importance": {
+      "encoded_top": [
+        {
+          "feature": "num__sttl",
+          "importance": 0.093363
+        },
+        {
+          "feature": "num__ct_state_ttl",
+          "importance": 0.071745
+        },
+        {
+          "feature": "num__rate",
+          "importance": 0.063992
+        },
+        {
+          "feature": "num__sload",
+          "importance": 0.049179
+        },
+        {
+          "feature": "num__dload",
+          "importance": 0.048023
+        },
+        {
+          "feature": "num__ct_srv_dst",
+          "importance": 0.03705
+        },
+        {
+          "feature": "num__sbytes",
+          "importance": 0.036161
+        },
+        {
+          "feature": "num__ct_dst_src_ltm",
+          "importance": 0.033718
+        },
+        {
+          "feature": "num__ackdat",
+          "importance": 0.033528
+        },
+        {
+          "feature": "num__tcprtt",
+          "importance": 0.03334
+        },
+        {
+          "feature": "num__dpkts",
+          "importance": 0.031127
+        },
+        {
+          "feature": "num__smean",
+          "importance": 0.03112
+        },
+        {
+          "feature": "cat__state_INT",
+          "importance": 0.030078
+        },
+        {
+          "feature": "num__sinpkt",
+          "importance": 0.027952
+        },
+        {
+          "feature": "num__dur",
+          "importance": 0.02716
+        },
+        {
+          "feature": "num__ct_srv_src",
+          "importance": 0.027129
+        },
+        {
+          "feature": "num__dbytes",
+          "importance": 0.027035
+        },
+        {
+          "feature": "num__dmean",
+          "importance": 0.023877
+        },
+        {
+          "feature": "num__synack",
+          "importance": 0.022012
+        },
+        {
+          "feature": "num__dinpkt",
+          "importance": 0.020325
+        },
+        {
+          "feature": "num__djit",
+          "importance": 0.019955
+        },
+        {
+          "feature": "num__dttl",
+          "importance": 0.019682
+        },
+        {
+          "feature": "num__sjit",
+          "importance": 0.019497
+        },
+        {
+          "feature": "num__ct_src_ltm",
+          "importance": 0.015474
+        },
+        {
+          "feature": "num__ct_dst_sport_ltm",
+          "importance": 0.012567
+        },
+        {
+          "feature": "num__sloss",
+          "importance": 0.011891
+        },
+        {
+          "feature": "num__ct_dst_ltm",
+          "importance": 0.011801
+        },
+        {
+          "feature": "num__dloss",
+          "importance": 0.011384
+        },
+        {
+          "feature": "cat__state_CON",
+          "importance": 0.011238
+        },
+        {
+          "feature": "num__spkts",
+          "importance": 0.010863
+        }
+      ],
+      "original_feature_top": [
+        {
+          "feature": "sttl",
+          "importance": 0.093363
+        },
+        {
+          "feature": "ct_state_ttl",
+          "importance": 0.071745
+        },
+        {
+          "feature": "rate",
+          "importance": 0.063992
+        },
+        {
+          "feature": "sload",
+          "importance": 0.049179
+        },
+        {
+          "feature": "dload",
+          "importance": 0.048023
+        },
+        {
+          "feature": "state",
+          "importance": 0.043229
+        },
+        {
+          "feature": "ct_srv_dst",
+          "importance": 0.03705
+        },
+        {
+          "feature": "sbytes",
+          "importance": 0.036161
+        },
+        {
+          "feature": "ct_dst_src_ltm",
+          "importance": 0.033718
+        },
+        {
+          "feature": "ackdat",
+          "importance": 0.033528
+        },
+        {
+          "feature": "tcprtt",
+          "importance": 0.03334
+        },
+        {
+          "feature": "dpkts",
+          "importance": 0.031127
+        },
+        {
+          "feature": "smean",
+          "importance": 0.03112
+        },
+        {
+          "feature": "sinpkt",
+          "importance": 0.027952
+        },
+        {
+          "feature": "dur",
+          "importance": 0.02716
+        },
+        {
+          "feature": "ct_srv_src",
+          "importance": 0.027129
+        },
+        {
+          "feature": "dbytes",
+          "importance": 0.027035
+        },
+        {
+          "feature": "dmean",
+          "importance": 0.023877
+        },
+        {
+          "feature": "synack",
+          "importance": 0.022012
+        },
+        {
+          "feature": "dinpkt",
+          "importance": 0.020325
+        },
+        {
+          "feature": "djit",
+          "importance": 0.019955
+        },
+        {
+          "feature": "dttl",
+          "importance": 0.019682
+        },
+        {
+          "feature": "sjit",
+          "importance": 0.019497
+        },
+        {
+          "feature": "proto",
+          "importance": 0.018408
+        },
+        {
+          "feature": "ct_src_ltm",
+          "importance": 0.015474
+        },
+        {
+          "feature": "service",
+          "importance": 0.014785
+        },
+        {
+          "feature": "ct_dst_sport_ltm",
+          "importance": 0.012567
+        },
+        {
+          "feature": "sloss",
+          "importance": 0.011891
+        },
+        {
+          "feature": "ct_dst_ltm",
+          "importance": 0.011801
+        },
+        {
+          "feature": "dloss",
+          "importance": 0.011384
+        }
+      ],
+      "encoded_feature_count": 194,
+      "original_feature_count": 42
+    }
+  },
+  "summary": {
+    "multiclass_macro_f1": 0.4851,
+    "multiclass_attack_recall": 0.9698,
+    "multiclass_fpr": 0.2351,
+    "multiclass_roc_auc": 0.9785,
+    "multiclass_pr_auc": 0.9816,
+    "binary_attack_recall": 0.9877,
+    "binary_fpr": 0.2714,
+    "binary_roc_auc": 0.9794,
+    "binary_pr_auc": 0.9818,
+    "top_original_features_multiclass": [
+      "sbytes",
+      "smean",
+      "service",
+      "ct_dst_src_ltm",
+      "proto",
+      "ct_srv_dst",
+      "ct_srv_src",
+      "sload",
+      "sttl",
+      "rate"
+    ]
+  },
+  "notes": [
+    "Phase 1 only: confusion analysis, per-class metrics, binary experiment, AUC, importance.",
+    "Does not constitute cross-dataset generalization.",
+    "Does not replace production CICIDS2017 random_forest_model.pkl.",
+    "Binary experiment trains a separate RF on Normal vs Attack labels derived from attack_cat."
+  ]
+}
